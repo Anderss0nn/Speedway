@@ -11,10 +11,6 @@
       --border: #334155;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --red-helmet: #ef4444;
-      --blue-helmet: #3b82f6;
-      --white-helmet: #f8fafc;
-      --yellow-helmet: #eab308;
       --home-accent: #dc2626;
       --away-accent: #06b6d4;
       --lead-green: #22c55e;
@@ -168,7 +164,7 @@
     .heat-time-input:focus { border-color: #38bdf8; }
     .heat-score { font-weight: 800; font-size: 14px; white-space: nowrap; }
 
-    /* Förarrad */
+    /* Optimerad förarrad */
     .rider-card-row {
       padding: 10px 12px;
       border-bottom: 1px solid #243247;
@@ -180,33 +176,31 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 8px;
+      gap: 8px;
     }
     .rider-title-wrap {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       flex: 1;
       min-width: 0;
     }
-    .gate-badge {
-      font-size: 10px;
+
+    /* Tydlig Startspårs-bricka med integrerad färg */
+    .gate-pill {
+      font-size: 11px;
       font-weight: 800;
-      padding: 1px 5px;
-      border-radius: 4px;
-      background: #334155;
-      color: #f8fafc;
-      letter-spacing: 0.5px;
-    }
-    .helmet {
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
+      padding: 3px 6px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
       flex-shrink: 0;
+      text-align: center;
+      min-width: 58px;
     }
-    .helmet.red { background: var(--red-helmet); }
-    .helmet.blue { background: var(--blue-helmet); }
-    .helmet.white { background: var(--white-helmet); }
-    .helmet.yellow { background: var(--yellow-helmet); }
+    .gate-pill.gate-1 { background: #ef4444; color: #ffffff; }
+    .gate-pill.gate-2 { background: #3b82f6; color: #ffffff; }
+    .gate-pill.gate-3 { background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; }
+    .gate-pill.gate-4 { background: #eab308; color: #0f172a; }
 
     .rider-full-name {
       font-size: 14px;
@@ -227,11 +221,12 @@
       color: var(--muted);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 2px 4px;
+      padding: 3px 4px;
       font-size: 11px;
       font-weight: 600;
       outline: none;
-      max-width: 90px;
+      max-width: 85px;
+      flex-shrink: 0;
     }
 
     .score-buttons-bar {
@@ -268,7 +263,7 @@
       background: #151e2e;
     }
 
-    /* Statistik Tabeller & Dashboard */
+    /* Statistik Tabeller */
     .stats-table {
       width: 100%;
       border-collapse: collapse;
@@ -415,7 +410,7 @@
 
       <h3 style="color:var(--text); margin: 10px 0 6px 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Startspårsanalys (Spår 1–4)</h3>
       <table class="stats-table" id="gate-stats-table">
-        <thead><tr><th>Spår & Hjälm</th><th class="center">Segrar (3p)</th><th class="center">Totalpoäng</th><th class="right">Seger %</th></tr></thead>
+        <thead><tr><th>Startspår</th><th class="center">Segrar (3p)</th><th class="center">Totalpoäng</th><th class="right">Seger %</th></tr></thead>
         <tbody></tbody>
       </table>
 
@@ -465,8 +460,8 @@
         <tr>
           <th>Heat</th>
           <th>Tid</th>
-          <th>Röd / Blå (Indianerna)</th>
-          <th>Vit / Gul (Västervik)</th>
+          <th>Indianerna</th>
+          <th>Västervik</th>
           <th>Heatresultat</th>
           <th>Matchställning</th>
         </tr>
@@ -496,26 +491,26 @@
       7: "Victor Palovaara"
     };
 
-    // Startspår: Röd = Spår 1, Blå = Spår 2, Vit = Spår 3, Gul = Spår 4
+    // Officiell startspårsrotation per heat (Spår 1-4)
     const BASE_SCHEDULE = [
-      { heat: 1,  home: [{num: 1, h: "red", gate: 1}, {num: 2, h: "blue", gate: 2}], away: [{num: 1, h: "white", gate: 3}, {num: 2, h: "yellow", gate: 4}] },
-      { heat: 2,  home: [{num: 6, h: "red", gate: 1}, {num: 7, h: "blue", gate: 2}], away: [{num: 6, h: "white", gate: 3}, {num: 7, h: "yellow", gate: 4}] },
-      { heat: 3,  home: [{num: 3, h: "red", gate: 1}, {num: 4, h: "blue", gate: 2}], away: [{num: 3, h: "white", gate: 3}, {num: 4, h: "yellow", gate: 4}] },
-      { heat: 4,  home: [{num: 5, h: "red", gate: 1}, {num: 7, h: "blue", gate: 2}], away: [{num: 5, h: "white", gate: 3}, {num: 7, h: "yellow", gate: 4}] },
-      { heat: 5,  home: [{num: 2, h: "red", gate: 1}, {num: 6, h: "blue", gate: 2}], away: [{num: 4, h: "white", gate: 3}, {num: 6, h: "yellow", gate: 4}] },
-      { heat: 6,  home: [{num: 1, h: "red", gate: 1}, {num: 3, h: "blue", gate: 2}], away: [{num: 1, h: "white", gate: 3}, {num: 7, h: "yellow", gate: 4}] },
-      { heat: 7,  home: [{num: 4, h: "red", gate: 1}, {num: 5, h: "blue", gate: 2}], away: [{num: 2, h: "white", gate: 3}, {num: 3, h: "yellow", gate: 4}] },
-      { heat: 8,  home: [{num: 2, h: "red", gate: 1}, {num: 3, h: "blue", gate: 2}], away: [{num: 4, h: "white", gate: 3}, {num: 7, h: "yellow", gate: 4}] },
-      { heat: 9,  home: [{num: 5, h: "red", gate: 1}, {num: 6, h: "blue", gate: 2}], away: [{num: 1, h: "white", gate: 3}, {num: 2, h: "yellow", gate: 4}] },
-      { heat: 10, home: [{num: 1, h: "red", gate: 1}, {num: 7, h: "blue", gate: 2}], away: [{num: 3, h: "white", gate: 3}, {num: 5, h: "yellow", gate: 4}] },
-      { heat: 11, home: [{num: 4, h: "red", gate: 1}, {num: 5, h: "blue", gate: 2}], away: [{num: 2, h: "white", gate: 3}, {num: 6, h: "yellow", gate: 4}] },
-      { heat: 12, home: [{num: 6, h: "red", gate: 1}, {num: 7, h: "blue", gate: 2}], away: [{num: 5, h: "white", gate: 3}, {num: 6, h: "yellow", gate: 4}] },
-      { heat: 13, home: [{num: 1, h: "red", gate: 1}, {num: 4, h: "blue", gate: 2}], away: [{num: 1, h: "white", gate: 3}, {num: 4, h: "yellow", gate: 4}] },
-      { heat: 14, home: [{num: 2, h: "red", gate: 1}, {num: 3, h: "blue", gate: 2}], away: [{num: 3, h: "white", gate: 3}, {num: 5, h: "yellow", gate: 4}] },
-      { heat: 15, home: [{num: null, h: "red", gate: 1}, {num: null, h: "blue", gate: 2}], away: [{num: null, h: "white", gate: 3}, {num: null, h: "yellow", gate: 4}] }
+      { heat: 1,  home: [{num: 1, gate: 1}, {num: 2, gate: 3}], away: [{num: 1, gate: 2}, {num: 2, gate: 4}] },
+      { heat: 2,  home: [{num: 6, gate: 2}, {num: 7, gate: 4}], away: [{num: 6, gate: 1}, {num: 7, gate: 3}] },
+      { heat: 3,  home: [{num: 3, gate: 1}, {num: 4, gate: 3}], away: [{num: 3, gate: 2}, {num: 4, gate: 4}] },
+      { heat: 4,  home: [{num: 5, gate: 2}, {num: 7, gate: 4}], away: [{num: 5, gate: 3}, {num: 7, gate: 1}] },
+      { heat: 5,  home: [{num: 2, gate: 3}, {num: 6, gate: 1}], away: [{num: 4, gate: 2}, {num: 6, gate: 4}] },
+      { heat: 6,  home: [{num: 1, gate: 2}, {num: 3, gate: 4}], away: [{num: 1, gate: 3}, {num: 7, gate: 1}] },
+      { heat: 7,  home: [{num: 4, gate: 4}, {num: 5, gate: 2}], away: [{num: 2, gate: 1}, {num: 3, gate: 3}] },
+      { heat: 8,  home: [{num: 2, gate: 3}, {num: 3, gate: 1}], away: [{num: 4, gate: 4}, {num: 7, gate: 2}] },
+      { heat: 9,  home: [{num: 5, gate: 3}, {num: 6, gate: 1}], away: [{num: 1, gate: 4}, {num: 2, gate: 2}] },
+      { heat: 10, home: [{num: 1, gate: 4}, {num: 7, gate: 2}], away: [{num: 3, gate: 1}, {num: 5, gate: 3}] },
+      { heat: 11, home: [{num: 4, gate: 2}, {num: 5, gate: 4}], away: [{num: 2, gate: 3}, {num: 6, gate: 1}] },
+      { heat: 12, home: [{num: 6, gate: 1}, {num: 7, gate: 3}], away: [{num: 5, gate: 2}, {num: 6, gate: 4}] },
+      { heat: 13, home: [{num: 1, gate: 1}, {num: 4, gate: 3}], away: [{num: 1, gate: 2}, {num: 4, gate: 4}] },
+      { heat: 14, home: [{num: 2, gate: 4}, {num: 3, gate: 2}], away: [{num: 3, gate: 3}, {num: 5, gate: 1}] },
+      { heat: 15, home: [{num: null, gate: 1}, {num: null, gate: 3}], away: [{num: null, gate: 2}, {num: null, gate: 4}] }
     ];
 
-    const STORAGE_PREFIX = "speedway_app_data_v13";
+    const STORAGE_PREFIX = "speedway_app_data_v14";
     let scores = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_scores`) || "{}");
     let riderOverrides = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_overrides`) || "{}");
     let heatTimes = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_times`) || "{}");
@@ -592,16 +587,16 @@
           </div>
       `;
 
-      h.home.forEach((r, rIdx) => {
-        const currentNum = getSelectedRiderNum(heatIdx, 'home', rIdx, r.num);
-        const activePt = scores[`${heatIdx}_home_${rIdx}`];
-        html += createRiderRow(heatIdx, 'home', rIdx, r.h, r.gate, HOME_RIDERS, currentNum, activePt, usedPointsInHeat, 'Indianerna');
-      });
+      // Sortera förarna efter startspår (1 till 4) för perfekt läsbarhet
+      const allRidersInHeat = [
+        ...h.home.map((r, rIdx) => ({ ...r, team: 'home', rIdx, teamName: 'Indianerna', ridersMap: HOME_RIDERS })),
+        ...h.away.map((r, rIdx) => ({ ...r, team: 'away', rIdx, teamName: 'Västervik', ridersMap: AWAY_RIDERS }))
+      ].sort((a, b) => a.gate - b.gate);
 
-      h.away.forEach((r, rIdx) => {
-        const currentNum = getSelectedRiderNum(heatIdx, 'away', rIdx, r.num);
-        const activePt = scores[`${heatIdx}_away_${rIdx}`];
-        html += createRiderRow(heatIdx, 'away', rIdx, r.h, r.gate, AWAY_RIDERS, currentNum, activePt, usedPointsInHeat, 'Västervik');
+      allRidersInHeat.forEach(r => {
+        const currentNum = getSelectedRiderNum(heatIdx, r.team, r.rIdx, r.num);
+        const activePt = scores[`${heatIdx}_${r.team}_${r.rIdx}`];
+        html += createRiderRow(heatIdx, r.team, r.rIdx, r.gate, r.ridersMap, currentNum, activePt, usedPointsInHeat, r.teamName);
       });
 
       html += `</div>`;
@@ -682,7 +677,6 @@
       let homeRiderRemainingHeats = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
       let awayRiderRemainingHeats = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
 
-      // Startspårsstatistik (Spår 1-4)
       let gateWins = {1:0, 2:0, 3:0, 4:0};
       let gatePoints = {1:0, 2:0, 3:0, 4:0};
       let totalCompletedHeatsWithPoints = 0;
@@ -718,7 +712,6 @@
           });
         });
 
-        // Kontrollera tider
         const tVal = parseFloat(heatTimes[heatIdx]);
         if (!isNaN(tVal) && tVal > 0 && tVal < fastestTime) {
           fastestTime = tVal;
@@ -819,7 +812,6 @@
       document.getElementById("home-total").innerText = runningHome;
       document.getElementById("away-total").innerText = runningAway;
 
-      // Uppdatera dashboard/matchsammanfattning
       document.getElementById("stat-5-1").innerText = `${home5_1} – ${away5_1}`;
       document.getElementById("stat-fastest-time").innerText = fastestTimeStr;
 
@@ -827,7 +819,6 @@
 
       document.getElementById("p-score-header").innerText = `Indianerna ${runningHome} - ${runningAway} Västervik`;
 
-      // Rendera tabellerna
       renderTable("ind-stats", HOME_RIDERS, homeRiderPoints, homeRiderHeats, homeRiderHistory, homeRiderRemainingHeats);
       renderTable("vas-stats", AWAY_RIDERS, awayRiderPoints, awayRiderHeats, awayRiderHistory, awayRiderRemainingHeats);
       renderGateStatsTable(gateWins, gatePoints, totalCompletedHeatsWithPoints);
@@ -836,7 +827,7 @@
       renderPrintTable("p-vas-stats", AWAY_RIDERS, awayRiderPoints, awayRiderHeats, awayRiderHistory);
     }
 
-    function createRiderRow(heatIdx, team, rIdx, helmet, gate, ridersMap, currentNum, activePt, usedPointsInHeat, teamName) {
+    function createRiderRow(heatIdx, team, rIdx, gate, ridersMap, currentNum, activePt, usedPointsInHeat, teamName) {
       const regularPts = ["3", "2", "1", "0"];
       const riderName = currentNum ? ridersMap[currentNum] : "Välj förare (Heat 15)";
       const subInfo = currentNum ? `#${currentNum} ${teamName}` : teamName;
@@ -855,8 +846,7 @@
         <div class="rider-card-row">
           <div class="rider-top-line">
             <div class="rider-title-wrap">
-              <span class="gate-badge">SPÅR ${gate}</span>
-              <div class="helmet ${helmet}"></div>
+              <span class="gate-pill gate-${gate}">SPÅR ${gate}</span>
               <span class="rider-full-name">${riderName} <span class="rider-sub-badge">${subInfo}</span></span>
             </div>
             <select class="edit-rider-select" onchange="onRiderChange(${heatIdx}, '${team}', ${rIdx}, this.value)">
@@ -881,11 +871,11 @@
     function renderGateStatsTable(gateWins, gatePoints, completedHeats) {
       const tbody = document.querySelector("#gate-stats-table tbody");
       tbody.innerHTML = "";
-      const gateNames = {
-        1: { name: "Spår 1 (Röd)", color: "#ef4444" },
-        2: { name: "Spår 2 (Blå)", color: "#3b82f6" },
-        3: { name: "Spår 3 (Vit)", color: "#f8fafc" },
-        4: { name: "Spår 4 (Gul)", color: "#eab308" }
+      const gateLabels = {
+        1: "Spår 1 (Inner)",
+        2: "Spår 2",
+        3: "Spår 3",
+        4: "Spår 4 (Ytter)"
       };
 
       [1, 2, 3, 4].forEach(g => {
@@ -895,7 +885,7 @@
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${gateNames[g].color}; margin-right:6px;"></span><strong>${gateNames[g].name}</strong></td>
+          <td><span class="gate-pill gate-${g}" style="font-size:9px; padding:2px 5px; margin-right:6px;">SPÅR ${g}</span><strong>${gateLabels[g]}</strong></td>
           <td class="center" style="font-weight:700;">${wins}</td>
           <td class="center">${pts} p</td>
           <td class="right" style="color:#38bdf8;">${winPct}</td>
