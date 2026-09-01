@@ -55,13 +55,13 @@
       padding: 2px 8px;
       border-radius: 999px;
       margin-top: 4px;
-      display: none; /* Visas när match börjat */
+      display: none;
     }
     .diff-badge.ind-lead { background: rgba(34, 197, 94, 0.2); color: var(--lead-green); border: 1px solid var(--lead-green); display: inline-block; }
     .diff-badge.vas-lead { background: rgba(239, 68, 68, 0.2); color: var(--lead-red); border: 1px solid var(--lead-red); display: inline-block; }
     .diff-badge.tie { background: rgba(148, 163, 184, 0.2); color: var(--muted); border: 1px solid var(--border); display: inline-block; }
 
-    /* Dynamisk matchkommentar (visas endast när relevant) */
+    /* Dynamisk matchkommentar */
     .clinch-alert {
       display: none;
       background: linear-gradient(135deg, #1e293b, #0f172a);
@@ -202,16 +202,16 @@
     }
     .rider-select:focus { border-color: #38bdf8; }
 
-    .score-buttons { display: flex; gap: 3px; flex-shrink: 0; }
+    .score-buttons { display: flex; gap: 4px; flex-shrink: 0; }
     .btn-pt {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 6px;
       border: 1px solid var(--border);
       background: #243247;
       color: var(--text);
       font-weight: 700;
-      font-size: 12px;
+      font-size: 13px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
@@ -219,6 +219,11 @@
       background: #38bdf8;
       color: #0f172a;
       border-color: #38bdf8;
+    }
+    .btn-pt.active-status {
+      background: #f43f5e;
+      color: #ffffff;
+      border-color: #f43f5e;
     }
     .btn-pt:disabled {
       opacity: 0.18;
@@ -429,7 +434,7 @@
       { heat: 15, home: [{num: null, h: "red"}, {num: null, h: "blue"}], away: [{num: null, h: "white"}, {num: null, h: "yellow"}] }
     ];
 
-    const STORAGE_PREFIX = "speedway_app_data_v10";
+    const STORAGE_PREFIX = "speedway_app_data_v11";
     let scores = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_scores`) || "{}");
     let riderOverrides = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_overrides`) || "{}");
     let heatTimes = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_times`) || "{}");
@@ -468,6 +473,21 @@
         delete scores[key];
       } else {
         scores[key] = ptLabel;
+      }
+      localStorage.setItem(`${STORAGE_PREFIX}_scores`, JSON.stringify(scores));
+      render();
+    }
+
+    // Växlar mellan M -> F -> nollställt
+    function toggleMF(heatIdx, team, rIdx) {
+      const key = `${heatIdx}_${team}_${rIdx}`;
+      const current = scores[key];
+      if (current === 'M') {
+        scores[key] = 'F';
+      } else if (current === 'F') {
+        delete scores[key];
+      } else {
+        scores[key] = 'M';
       }
       localStorage.setItem(`${STORAGE_PREFIX}_scores`, JSON.stringify(scores));
       render();
@@ -528,7 +548,6 @@
         }
       }
 
-      // Beräkna om säkrings-kommentar ska visas
       const remainingHeats = 15 - completedHeatsCount;
       const maxRemainingPoints = remainingHeats * 5;
       const banner = document.getElementById("clinch-banner");
@@ -546,7 +565,6 @@
         const indNeed = 46 - homeTotal;
         const vasNeed = 46 - awayTotal;
 
-        // Om ett lag inte längre kan komma ikapp
         if (awayTotal + maxRemainingPoints < homeTotal) {
           comment = "🏆 Indianerna har säkrat segern (Västervik kan inte komma ikapp)!";
           isWon = true;
@@ -703,13 +721,18 @@
     }
 
     function createRiderRow(heatIdx, team, rIdx, helmet, ridersMap, currentNum, activePt, usedPointsInHeat) {
-      const pts = ["3", "2", "1", "0", "M", "F"];
+      const regularPts = ["3", "2", "1", "0"];
 
       let options = `<option value="">-- Välj förare --</option>`;
       Object.keys(ridersMap).forEach(n => {
         const selected = (currentNum !== null && String(currentNum) === String(n)) ? 'selected' : '';
         options += `<option value="${n}" ${selected}>#${n} ${ridersMap[n]}</option>`;
       });
+
+      // Statusknapp för M/F/X
+      const isMFActive = (activePt === 'M' || activePt === 'F');
+      const mfLabel = isMFActive ? activePt : 'M/F';
+      const mfClass = isMFActive ? 'btn-pt active-status' : 'btn-pt';
 
       return `
         <div class="rider-row">
@@ -720,7 +743,7 @@
             </select>
           </div>
           <div class="score-buttons">
-            ${pts.map(p => {
+            ${regularPts.map(p => {
               const isActive = (activePt !== undefined && String(activePt) === String(p));
               const isLocked = (p === '3' || p === '2' || p === '1') && usedPointsInHeat.has(p) && !isActive;
               const disabledAttr = isLocked ? 'disabled' : '';
@@ -728,6 +751,7 @@
 
               return `<button class="btn-pt ${activeClass}" ${disabledAttr} onclick="saveScore(${heatIdx}, '${team}', ${rIdx}, '${p}')">${p}</button>`;
             }).join("")}
+            <button class="${mfClass}" style="font-size:11px;" onclick="toggleMF(${heatIdx}, '${team}', ${rIdx})">${mfLabel}</button>
           </div>
         </div>
       `;
