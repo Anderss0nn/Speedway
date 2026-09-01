@@ -490,6 +490,7 @@
       7: "Victor Palovaara"
     };
 
+    // Officiell startspårsrotation per heat (Spår 1-4)
     const BASE_SCHEDULE = [
       { heat: 1,  home: [{num: 1, gate: 1}, {num: 2, gate: 3}], away: [{num: 1, gate: 2}, {num: 2, gate: 4}] },
       { heat: 2,  home: [{num: 6, gate: 2}, {num: 7, gate: 4}], away: [{num: 6, gate: 1}, {num: 7, gate: 3}] },
@@ -508,7 +509,7 @@
       { heat: 15, home: [{num: null, gate: 1}, {num: null, gate: 3}], away: [{num: null, gate: 2}, {num: null, gate: 4}] }
     ];
 
-    const STORAGE_PREFIX = "speedway_app_data_v15";
+    const STORAGE_PREFIX = "speedway_app_data_v16";
     let scores = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_scores`) || "{}");
     let riderOverrides = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_overrides`) || "{}");
     let heatTimes = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_times`) || "{}");
