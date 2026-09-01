@@ -168,17 +168,29 @@
     .heat-time-input:focus { border-color: #38bdf8; }
     .heat-score { font-weight: 800; font-size: 14px; white-space: nowrap; }
 
-    .rider-row {
-      display: flex;
-      align-items: center;
+    /* Omarbetad förarrad med fullt namn */
+    .rider-card-row {
       padding: 10px 12px;
       border-bottom: 1px solid #243247;
-      gap: 8px;
     }
-    .rider-row:last-child { border-bottom: none; }
+    .rider-card-row:last-child { border-bottom: none; }
+    
+    .rider-top-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .rider-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
     .helmet {
-      width: 14px;
-      height: 14px;
+      width: 13px;
+      height: 13px;
       border-radius: 50%;
       flex-shrink: 0;
     }
@@ -187,31 +199,46 @@
     .helmet.white { background: var(--white-helmet); }
     .helmet.yellow { background: var(--yellow-helmet); }
 
-    .rider-info { flex: 1; min-width: 0; }
-    .rider-select {
-      width: 100%;
-      background: #111827;
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 8px;
-      font-size: 13px;
-      font-weight: 600;
-      outline: none;
+    .rider-full-name {
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
       text-overflow: ellipsis;
     }
-    .rider-select:focus { border-color: #38bdf8; }
+    .rider-sub-badge {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 4px;
+      font-weight: normal;
+    }
 
-    .score-buttons { display: flex; gap: 4px; flex-shrink: 0; }
-    .btn-pt {
-      width: 36px;
-      height: 36px;
+    .edit-rider-select {
+      background: #0f172a;
+      color: var(--muted);
+      border: 1px solid var(--border);
       border-radius: 6px;
+      padding: 2px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      outline: none;
+      max-width: 90px;
+    }
+
+    .score-buttons-bar {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+    }
+    .btn-pt {
+      flex: 1;
+      height: 38px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: #243247;
       color: var(--text);
-      font-weight: 700;
-      font-size: 13px;
+      font-weight: 800;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
@@ -327,6 +354,7 @@
   <main class="container">
     <div id="clinch-banner" class="clinch-alert"></div>
 
+    <!-- Flik 1: Fokusheat -->
     <div id="tab-focus">
       <div class="focus-nav">
         <button class="nav-btn" id="prev-heat-btn" onclick="changeFocusHeat(-1)">◀ Föregående</button>
@@ -336,8 +364,10 @@
       <div id="focus-heat-card-container"></div>
     </div>
 
+    <!-- Flik 2: Översikt körschema -->
     <div id="tab-heats" style="display:none;"></div>
 
+    <!-- Flik 3: Förarstatistik & Export -->
     <div id="tab-riders" style="display:none;">
       <h3 style="color:var(--home-accent); margin: 10px 0 6px 4px; font-size: 14px;">INDIANERNA</h3>
       <table class="stats-table" id="ind-stats">
@@ -358,6 +388,7 @@
     </div>
   </main>
 
+  <!-- Dold utskriftsvy som genererar PDF:en -->
   <div id="print-sheet">
     <div class="print-header">
       <h1>MATCHPROTOKOLL SPEEDWAY</h1>
@@ -434,7 +465,7 @@
       { heat: 15, home: [{num: null, h: "red"}, {num: null, h: "blue"}], away: [{num: null, h: "white"}, {num: null, h: "yellow"}] }
     ];
 
-    const STORAGE_PREFIX = "speedway_app_data_v11";
+    const STORAGE_PREFIX = "speedway_app_data_v12";
     let scores = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_scores`) || "{}");
     let riderOverrides = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_overrides`) || "{}");
     let heatTimes = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_times`) || "{}");
@@ -478,7 +509,6 @@
       render();
     }
 
-    // Växlar mellan M -> F -> nollställt
     function toggleMF(heatIdx, team, rIdx) {
       const key = `${heatIdx}_${team}_${rIdx}`;
       const current = scores[key];
@@ -514,13 +544,13 @@
       h.home.forEach((r, rIdx) => {
         const currentNum = getSelectedRiderNum(heatIdx, 'home', rIdx, r.num);
         const activePt = scores[`${heatIdx}_home_${rIdx}`];
-        html += createRiderRow(heatIdx, 'home', rIdx, r.h, HOME_RIDERS, currentNum, activePt, usedPointsInHeat);
+        html += createRiderRow(heatIdx, 'home', rIdx, r.h, HOME_RIDERS, currentNum, activePt, usedPointsInHeat, 'Indianerna');
       });
 
       h.away.forEach((r, rIdx) => {
         const currentNum = getSelectedRiderNum(heatIdx, 'away', rIdx, r.num);
         const activePt = scores[`${heatIdx}_away_${rIdx}`];
-        html += createRiderRow(heatIdx, 'away', rIdx, r.h, AWAY_RIDERS, currentNum, activePt, usedPointsInHeat);
+        html += createRiderRow(heatIdx, 'away', rIdx, r.h, AWAY_RIDERS, currentNum, activePt, usedPointsInHeat, 'Västervik');
       });
 
       html += `</div>`;
@@ -720,29 +750,33 @@
       renderPrintTable("p-vas-stats", AWAY_RIDERS, awayRiderPoints, awayRiderHeats, awayRiderHistory);
     }
 
-    function createRiderRow(heatIdx, team, rIdx, helmet, ridersMap, currentNum, activePt, usedPointsInHeat) {
+    function createRiderRow(heatIdx, team, rIdx, helmet, ridersMap, currentNum, activePt, usedPointsInHeat, teamName) {
       const regularPts = ["3", "2", "1", "0"];
+      const riderName = currentNum ? ridersMap[currentNum] : "Välj förare (Heat 15)";
+      const subInfo = currentNum ? `#${currentNum} ${teamName}` : teamName;
 
-      let options = `<option value="">-- Välj förare --</option>`;
+      let options = `<option value="">Byt förare...</option>`;
       Object.keys(ridersMap).forEach(n => {
         const selected = (currentNum !== null && String(currentNum) === String(n)) ? 'selected' : '';
         options += `<option value="${n}" ${selected}>#${n} ${ridersMap[n]}</option>`;
       });
 
-      // Statusknapp för M/F/X
       const isMFActive = (activePt === 'M' || activePt === 'F');
       const mfLabel = isMFActive ? activePt : 'M/F';
       const mfClass = isMFActive ? 'btn-pt active-status' : 'btn-pt';
 
       return `
-        <div class="rider-row">
-          <div class="helmet ${helmet}"></div>
-          <div class="rider-info">
-            <select class="rider-select" onchange="onRiderChange(${heatIdx}, '${team}', ${rIdx}, this.value)">
+        <div class="rider-card-row">
+          <div class="rider-top-line">
+            <div class="rider-title-wrap">
+              <div class="helmet ${helmet}"></div>
+              <span class="rider-full-name">${riderName} <span class="rider-sub-badge">${subInfo}</span></span>
+            </div>
+            <select class="edit-rider-select" onchange="onRiderChange(${heatIdx}, '${team}', ${rIdx}, this.value)">
               ${options}
             </select>
           </div>
-          <div class="score-buttons">
+          <div class="score-buttons-bar">
             ${regularPts.map(p => {
               const isActive = (activePt !== undefined && String(activePt) === String(p));
               const isLocked = (p === '3' || p === '2' || p === '1') && usedPointsInHeat.has(p) && !isActive;
@@ -751,7 +785,7 @@
 
               return `<button class="btn-pt ${activeClass}" ${disabledAttr} onclick="saveScore(${heatIdx}, '${team}', ${rIdx}, '${p}')">${p}</button>`;
             }).join("")}
-            <button class="${mfClass}" style="font-size:11px;" onclick="toggleMF(${heatIdx}, '${team}', ${rIdx})">${mfLabel}</button>
+            <button class="${mfClass}" onclick="toggleMF(${heatIdx}, '${team}', ${rIdx})">${mfLabel}</button>
           </div>
         </div>
       `;
