@@ -101,10 +101,32 @@
       margin-top: 3px;
       display: none;
     }
-    .diff-badge.home-lead { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); display: inline-block; }
-    .diff-badge.away-lead { background: rgba(239, 68, 68, 0.2); color: var(--color-red); border: 1px solid var(--color-red); display: inline-block; }
-    .diff-badge.tie { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); border: 1px solid var(--border-color); display: inline-block; }
-
+    .diff-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 3px;
+  display: none;
+}
+.diff-badge.ind-lead { 
+  background: rgba(34, 197, 94, 0.2); 
+  color: var(--accent-green); 
+  border: 1px solid var(--accent-green); 
+  display: inline-block; 
+}
+.diff-badge.ind-behind { 
+  background: rgba(239, 68, 68, 0.2); 
+  color: var(--color-red); 
+  border: 1px solid var(--color-red); 
+  display: inline-block; 
+}
+.diff-badge.tie { 
+  background: rgba(148, 163, 184, 0.2); 
+  color: var(--text-muted); 
+  border: 1px solid var(--border-color); 
+  display: inline-block; 
+}
     .clinch-alert {
       display: none;
       background: linear-gradient(135deg, #162035, #0b1329);
@@ -922,7 +944,7 @@
         `;
       },
 
-      updateClinchAlert(homeTotal, awayTotal, totalAggHome, totalAggAway, completedCount, match, isPlayoff) {
+     updateClinchAlert(homeTotal, awayTotal, totalAggHome, totalAggAway, completedCount, match, isPlayoff) {
         const diffBadge = document.getElementById("diff-badge");
         const diff = isPlayoff ? (totalAggHome - totalAggAway) : (homeTotal - awayTotal);
 
@@ -931,15 +953,31 @@
         } else {
           diffBadge.style.display = "inline-block";
           diffBadge.className = "diff-badge";
-          if (diff > 0) {
-            diffBadge.classList.add("home-lead");
-            diffBadge.innerText = isPlayoff ? `Totalt: +${diff}` : `+${diff}`;
-          } else if (diff < 0) {
-            diffBadge.classList.add("away-lead");
-            diffBadge.innerText = isPlayoff ? `Totalt: ${diff}` : `${diff}`;
-          } else {
+
+          // Kontrollera om Indianerna är hemma- eller bortalag
+          const indIsHome = match.homeTeam.toLowerCase().includes("indianerna");
+          const indIsAway = match.awayTeam.toLowerCase().includes("indianerna");
+
+          // Beräkna om Indianerna leder
+          // Om indIsHome: ledning när diff > 0
+          // Om indIsAway: ledning när diff < 0
+          const indLeading = indIsHome ? (diff > 0) : (indIsAway ? (diff < 0) : false);
+          const indBehind = indIsHome ? (diff < 0) : (indIsAway ? (diff > 0) : false);
+
+          if (diff === 0) {
             diffBadge.classList.add("tie");
             diffBadge.innerText = isPlayoff ? "Totalt: Lika" : "Lika";
+          } else if (indLeading) {
+            diffBadge.classList.add("ind-lead");
+            diffBadge.innerText = isPlayoff ? `Totalt: +${Math.abs(diff)}` : `+${Math.abs(diff)}`;
+          } else if (indBehind) {
+            diffBadge.classList.add("ind-behind");
+            diffBadge.innerText = isPlayoff ? `Totalt: -${Math.abs(diff)}` : `-${Math.abs(diff)}`;
+          } else {
+            // Neutral fallback om en match inte involverar Indianerna
+            diffBadge.classList.add("tie");
+            const prefix = isPlayoff ? "Totalt: " : "";
+            diffBadge.innerText = diff > 0 ? `${prefix}+${diff}` : `${prefix}${diff}`;
           }
         }
 
