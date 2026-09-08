@@ -26,7 +26,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text-main); padding-bottom: 80px; }
 
-    /* Matchväljare i toppen */
+    /* Matchväljare */
     .match-selector-bar {
       background: #080d1c;
       border-bottom: 1px solid var(--border-color);
@@ -65,25 +65,26 @@
       background: rgba(11, 19, 41, 0.95);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border-color);
-      padding: 10px 16px;
+      padding: 8px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .team-box { text-align: center; flex: 1; min-width: 0; }
-    .team-box .name { font-weight: 800; font-size: 14px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .team-box .name { font-weight: 800; font-size: 13px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .team-box.home .name { color: var(--color-red); }
     .team-box.away .name { color: var(--accent-cyan); }
-    .score-total { font-size: 34px; font-weight: 900; line-height: 1; margin-top: 4px; }
+    .score-total { font-size: 32px; font-weight: 900; line-height: 1; margin-top: 2px; }
+    .aggregate-score { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 3px; }
     
-    .center-score-box { display: flex; flex-direction: column; align-items: center; padding: 0 10px; }
+    .center-score-box { display: flex; flex-direction: column; align-items: center; padding: 0 8px; }
     .vs-divider { color: var(--text-muted); font-weight: 700; font-size: 11px; }
     .diff-badge {
       font-size: 11px;
       font-weight: 800;
       padding: 2px 8px;
       border-radius: 999px;
-      margin-top: 4px;
+      margin-top: 3px;
       display: none;
     }
     .diff-badge.home-lead { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); display: inline-block; }
@@ -115,7 +116,7 @@
       background: var(--card-bg);
       border-bottom: 1px solid var(--border-color);
       position: sticky;
-      top: 61px;
+      top: 67px;
       z-index: 90;
     }
     .tab-btn {
@@ -310,7 +311,7 @@
       cursor: pointer;
     }
 
-    /* Utskriftslayout */
+    /* Utskrift */
     #print-sheet { display: none; }
     @media print {
       body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; }
@@ -332,7 +333,6 @@
 </head>
 <body>
 
-  <!-- Matchväljare -->
   <div class="match-selector-bar">
     <label for="match-select">Aktuell match:</label>
     <select id="match-select" class="match-select" onchange="App.onSelectMatch(this.value)"></select>
@@ -342,6 +342,7 @@
     <div class="team-box home">
       <div id="header-home-name" class="name">Hemmalag</div>
       <div id="home-total" class="score-total">0</div>
+      <div id="home-aggregate" class="aggregate-score">Totalt: 0</div>
     </div>
     <div class="center-score-box">
       <div class="vs-divider">VS</div>
@@ -350,6 +351,7 @@
     <div class="team-box away">
       <div id="header-away-name" class="name">Bortalag</div>
       <div id="away-total" class="score-total">0</div>
+      <div id="away-aggregate" class="aggregate-score">Totalt: 0</div>
     </div>
   </header>
 
@@ -411,7 +413,6 @@
     </div>
   </main>
 
-  <!-- Utskriftsmall -->
   <div id="print-sheet">
     <div class="print-header">
       <h1>MATCHPROTOKOLL SPEEDWAY</h1>
@@ -452,13 +453,21 @@
   <script>
     /**
      * MATCHDATABAS
-     * Fyll på med veckans matcher här på söndagar.
+     * Fyll på här varje söndag.
+     * Om det är ett returmöte i slutspelet anger du poängen från match 1 i "firstLeg".
+     * Om det är match 1 eller en vanlig seriematch sätter du: firstLeg: { homeTeamFirstLegScore: null, awayTeamFirstLegScore: null }
      */
-const MATCHES_DATABASE = {
-      "match-1": {
-        title: "Västervik vs Indianerna",
+    const MATCHES_DATABASE = {
+      "match-1-final-retur": {
+        title: "Västervik vs Indianerna (Slutspel Match 2)",
         homeTeam: "Västervik",
         awayTeam: "Indianerna",
+        // Exempel: I match 1 vann Indianerna hemma med 48-42.
+        // Då hade Västervik (kvällens hemmalag) 42 p, och Indianerna (kvällens bortalag) 48 p.
+        firstLeg: {
+          homeTeamFirstLegScore: 36,
+          awayTeamFirstLegScore: 54
+        },
         homeRiders: {
           1: "Robert Lambert (C)",
           2: "Tom Brennan",
@@ -478,10 +487,14 @@ const MATCHES_DATABASE = {
           7: "Jonatan Grahn"
         }
       },
-      "match-2": {
-        title: "Eskilstuna Smederna vs Dackarna",
+      "match-2-seriematch": {
+        title: "Eskilstuna Smederna vs Dackarna (Vanlig match)",
         homeTeam: "Eskilstuna Smederna",
         awayTeam: "Dackarna",
+        firstLeg: {
+          homeTeamFirstLegScore: 45,
+          awayTeamFirstLegScore: 45
+        },
         homeRiders: {
           1: "Maciej Janowski",
           2: "Mikkel Andersen",
@@ -505,44 +518,25 @@ const MATCHES_DATABASE = {
 
     /**
      * SVEMO 5.8.5 KÖRSCHEMA ELITSERIEN 2026-
-     * Mappning av Bana 1-4 per heat med färg och förarnummer.
      */
     const SVEMO_2026_SCHEDULE = [
-      // Heat 1: B2, V1, R1, G2
       { heat: 1,  slots: [{team:'home', num:2, gate:1, h:'blue'}, {team:'away', num:1, gate:2, h:'white'}, {team:'home', num:1, gate:3, h:'red'}, {team:'away', num:2, gate:4, h:'yellow'}] },
-      // Heat 2: G7, R6, V6, B7
       { heat: 2,  slots: [{team:'away', num:7, gate:1, h:'yellow'}, {team:'home', num:6, gate:2, h:'red'}, {team:'away', num:6, gate:3, h:'white'}, {team:'home', num:7, gate:4, h:'blue'}] },
-      // Heat 3: R3, V3, B4, G4
       { heat: 3,  slots: [{team:'home', num:3, gate:1, h:'red'}, {team:'away', num:3, gate:2, h:'white'}, {team:'home', num:4, gate:3, h:'blue'}, {team:'away', num:4, gate:4, h:'yellow'}] },
-      // Heat 4: V5, B5, G7, R6
       { heat: 4,  slots: [{team:'away', num:5, gate:1, h:'white'}, {team:'home', num:5, gate:2, h:'blue'}, {team:'away', num:7, gate:3, h:'yellow'}, {team:'home', num:6, gate:4, h:'red'}] },
-      // Heat 5: B7, G4, R2, V6
       { heat: 5,  slots: [{team:'home', num:7, gate:1, h:'blue'}, {team:'away', num:4, gate:2, h:'yellow'}, {team:'home', num:2, gate:3, h:'red'}, {team:'away', num:6, gate:4, h:'white'}] },
-      // Heat 6: G2, R3, V1, B4
       { heat: 6,  slots: [{team:'away', num:2, gate:1, h:'yellow'}, {team:'home', num:3, gate:2, h:'red'}, {team:'away', num:1, gate:3, h:'white'}, {team:'home', num:4, gate:4, h:'blue'}] },
-      // Heat 7: G4, R1, V3, B2
       { heat: 7,  slots: [{team:'away', num:4, gate:1, h:'yellow'}, {team:'home', num:1, gate:2, h:'red'}, {team:'away', num:3, gate:3, h:'white'}, {team:'home', num:2, gate:4, h:'blue'}] },
-      // Heat 8: B4, G7, R3, V5
       { heat: 8,  slots: [{team:'home', num:4, gate:1, h:'blue'}, {team:'away', num:7, gate:2, h:'yellow'}, {team:'home', num:3, gate:3, h:'red'}, {team:'away', num:5, gate:4, h:'white'}] },
-      // Heat 9: B5, G2, R6, V1
       { heat: 9,  slots: [{team:'home', num:5, gate:1, h:'blue'}, {team:'away', num:2, gate:2, h:'yellow'}, {team:'home', num:6, gate:3, h:'red'}, {team:'away', num:1, gate:4, h:'white'}] },
-      // Heat 10: V6, B7, G5, R1
       { heat: 10, slots: [{team:'away', num:6, gate:1, h:'white'}, {team:'home', num:7, gate:2, h:'blue'}, {team:'away', num:5, gate:3, h:'yellow'}, {team:'home', num:1, gate:4, h:'red'}] },
-      // Heat 11: V3, B4, G2, R5
       { heat: 11, slots: [{team:'away', num:3, gate:1, h:'white'}, {team:'home', num:4, gate:2, h:'blue'}, {team:'away', num:2, gate:3, h:'yellow'}, {team:'home', num:5, gate:4, h:'red'}] },
-      // Heat 12: B6, V6, R7, G7
       { heat: 12, slots: [{team:'home', num:6, gate:1, h:'blue'}, {team:'away', num:6, gate:2, h:'white'}, {team:'home', num:7, gate:3, h:'red'}, {team:'away', num:7, gate:4, h:'yellow'}] },
-      // Heat 13: V1, R2, G4, B3
       { heat: 13, slots: [{team:'away', num:1, gate:1, h:'white'}, {team:'home', num:2, gate:2, h:'red'}, {team:'away', num:4, gate:3, h:'yellow'}, {team:'home', num:3, gate:4, h:'blue'}] },
-      // Heat 14: R1, G5, B5, V3
       { heat: 14, slots: [{team:'home', num:1, gate:1, h:'red'}, {team:'away', num:5, gate:2, h:'yellow'}, {team:'home', num:5, gate:3, h:'blue'}, {team:'away', num:3, gate:4, h:'white'}] },
-      // Heat 15 (Nominering): V/R, V/R, G/B, G/B
       { heat: 15, slots: [{team:'away', num:null, gate:1, h:'white'}, {team:'home', num:null, gate:2, h:'red'}, {team:'away', num:null, gate:3, h:'yellow'}, {team:'home', num:null, gate:4, h:'blue'}] }
     ];
 
-    /**
-     * APP ENGINE & STATEMANAGEMENT
-     */
     const App = {
       currentMatchId: null,
       focusIndex: 0,
@@ -637,23 +631,17 @@ const MATCHES_DATABASE = {
         this.renderFull();
       },
 
-      /**
-       * Isolerad tidshantering:
-       * Sparar tidsdata utan att kalla renderFull() så att fokus och tangentbord inte tappas på mobilen.
-       */
       onTimeInput(heatIdx, value) {
         this.times[heatIdx] = value;
         const pfx = `speedway_data_${this.currentMatchId}_`;
         localStorage.setItem(`${pfx}times`, JSON.stringify(this.times));
 
-        // Synka övriga fält (mellan fokusvy och körschema) utan omläsning
         document.querySelectorAll(`input.heat-time-input[data-heat="${heatIdx}"]`).forEach(input => {
           if (input !== document.activeElement && input.value !== value) {
             input.value = value;
           }
         });
 
-        // Uppdatera enbart snabbaste tid i statistiken
         this.updateFastestTimeDisplay();
       },
 
@@ -725,7 +713,6 @@ const MATCHES_DATABASE = {
           let aScore = 0;
           let heatHasPoints = false;
 
-          // Hitta poäng som redan registrerats i heatet för att låsa knapparna 3, 2, 1
           const usedPts = new Set();
           h.slots.forEach((s, sIdx) => {
             const val = this.scores[`${heatIdx}_${s.team}_${sIdx}`];
@@ -738,7 +725,7 @@ const MATCHES_DATABASE = {
           h.slots.forEach((slot, sIdx) => {
             const overrideVal = this.overrides[`${heatIdx}_${slot.team}_${sIdx}`];
             const activeRiderNum = (overrideVal !== undefined) ? overrideVal : slot.num;
-            const pt = this.scores[`${heatIdx}_${slot.team}_${sIdx}`];
+            const pt = this.scores[`${heatIdx}_${slot.team}_${slot.sIdx}`];
             const ridersMap = (slot.team === 'home') ? match.homeRiders : match.awayRiders;
             const riderName = activeRiderNum ? (ridersMap[activeRiderNum] || `Förare ${activeRiderNum}`) : "Ej nominerad";
 
@@ -789,7 +776,6 @@ const MATCHES_DATABASE = {
             focusCardHtml = cardHtml;
           }
 
-          // Utskriftstabell rad
           const ptr = document.createElement("tr");
           ptr.innerHTML = `
             <td><strong>${h.heat}</strong></td>
@@ -811,10 +797,31 @@ const MATCHES_DATABASE = {
         document.getElementById("away-total").innerText = runningAway;
         document.getElementById("stat-5-1").innerText = `${home5_1} – ${away5_1}`;
 
-        this.updateFastestTimeDisplay();
-        this.updateClinchAlert(runningHome, runningAway, completedHeatsCount, match);
+        // Slutspels- / Totalsummering över 2 matcher
+        const isPlayoff = match.firstLeg && match.firstLeg.homeTeamFirstLegScore !== null && match.firstLeg.awayTeamFirstLegScore !== null;
+        const homeAggEl = document.getElementById("home-aggregate");
+        const awayAggEl = document.getElementById("away-aggregate");
 
-        document.getElementById("p-score-header").innerText = `${match.homeTeam} ${runningHome} - ${runningAway} ${match.awayTeam}`;
+        let totalAggHome = runningHome;
+        let totalAggAway = runningAway;
+
+        if (isPlayoff) {
+          totalAggHome += match.firstLeg.homeTeamFirstLegScore;
+          totalAggAway += match.firstLeg.awayTeamFirstLegScore;
+          homeAggEl.style.display = "block";
+          awayAggEl.style.display = "block";
+          homeAggEl.innerText = `Totalt: ${totalAggHome} (${match.firstLeg.homeTeamFirstLegScore}+${runningHome})`;
+          awayAggEl.innerText = `Totalt: ${totalAggAway} (${match.firstLeg.awayTeamFirstLegScore}+${runningAway})`;
+        } else {
+          homeAggEl.style.display = "none";
+          awayAggEl.style.display = "none";
+        }
+
+        this.updateFastestTimeDisplay();
+        this.updateClinchAlert(runningHome, runningAway, totalAggHome, totalAggAway, completedHeatsCount, match, isPlayoff);
+
+        const printSub = isPlayoff ? ` (Totalt: ${totalAggHome} - ${totalAggAway})` : '';
+        document.getElementById("p-score-header").innerText = `${match.homeTeam} ${runningHome} - ${runningAway} ${match.awayTeam}${printSub}`;
 
         this.renderStatsTable("home-stats-table", match.homeRiders, homePoints, homeHeatsCount, homeHistory, homeRemaining);
         this.renderStatsTable("away-stats-table", match.awayRiders, awayPoints, awayHeatsCount, awayHistory, awayRemaining);
@@ -837,7 +844,6 @@ const MATCHES_DATABASE = {
             </div>
         `;
 
-        // Sortera efter bana 1 till 4
         const sortedSlots = [...h.slots.map((s, sIdx) => ({ ...s, sIdx }))].sort((a, b) => a.gate - b.gate);
 
         sortedSlots.forEach(slot => {
@@ -893,46 +899,76 @@ const MATCHES_DATABASE = {
         `;
       },
 
-      updateClinchAlert(homeTotal, awayTotal, completedCount, match) {
+      updateClinchAlert(homeTotal, awayTotal, totalAggHome, totalAggAway, completedCount, match, isPlayoff) {
         const diffBadge = document.getElementById("diff-badge");
-        const diff = homeTotal - awayTotal;
+        const diff = isPlayoff ? (totalAggHome - totalAggAway) : (homeTotal - awayTotal);
 
-        if (homeTotal === 0 && awayTotal === 0 && completedCount === 0) {
+        if (homeTotal === 0 && awayTotal === 0 && completedCount === 0 && !isPlayoff) {
           diffBadge.style.display = "none";
         } else {
           diffBadge.style.display = "inline-block";
           diffBadge.className = "diff-badge";
           if (diff > 0) {
             diffBadge.classList.add("home-lead");
-            diffBadge.innerText = `+${diff}`;
+            diffBadge.innerText = isPlayoff ? `Totalt: +${diff}` : `+${diff}`;
           } else if (diff < 0) {
             diffBadge.classList.add("away-lead");
-            diffBadge.innerText = `${diff}`;
+            diffBadge.innerText = isPlayoff ? `Totalt: ${diff}` : `${diff}`;
           } else {
             diffBadge.classList.add("tie");
-            diffBadge.innerText = "Lika";
+            diffBadge.innerText = isPlayoff ? "Totalt: Lika" : "Lika";
           }
         }
 
         const remainingHeats = 15 - completedCount;
+        const maxRemainingPoints = remainingHeats * 5;
         const banner = document.getElementById("clinch-banner");
         let comment = "";
         let isWon = false;
 
-        if (homeTotal >= 46) {
-          comment = `🏆 ${match.homeTeam} har säkrat matchsegern!`;
-          isWon = true;
-        } else if (awayTotal >= 46) {
-          comment = `🏆 ${match.awayTeam} har säkrat matchsegern!`;
-          isWon = true;
-        } else if (completedCount >= 10) {
-          const maxRemaining = remainingHeats * 5;
-          if (awayTotal + maxRemaining < homeTotal) {
-            comment = `🏆 ${match.homeTeam} har matematiskt säkrat segern!`;
+        if (isPlayoff) {
+          // Totalt 90 poäng över 30 heat: 91 poäng krävs för att säkra avancemang utan skiljeheat
+          const homeNeed = 91 - totalAggHome;
+          const awayNeed = 91 - totalAggAway;
+
+          if (totalAggHome >= 91) {
+            comment = `🏆 ${match.homeTeam} har säkrat avancemanget sammanlagt (${totalAggHome}–${totalAggAway})!`;
             isWon = true;
-          } else if (homeTotal + maxRemaining < awayTotal) {
-            comment = `🏆 ${match.awayTeam} har matematiskt säkrat segern!`;
+          } else if (totalAggAway >= 91) {
+            comment = `🏆 ${match.awayTeam} har säkrat avancemanget sammanlagt (${totalAggAway}–${totalAggHome})!`;
             isWon = true;
+          } else if (completedCount === 15 && totalAggHome === 90 && totalAggAway === 90) {
+            comment = `⚖️ Oavgjort sammanlagt 90–90 efter 30 heat! Skiljeheat (Golden Heat) avgör.`;
+            isWon = false;
+          } else if (completedCount >= 8) {
+            if (totalAggAway + maxRemainingPoints < totalAggHome) {
+              comment = `🏆 ${match.homeTeam} är klara för avancemang (${match.awayTeam} kan inte nå ikapp)!`;
+              isWon = true;
+            } else if (totalAggHome + maxRemainingPoints < totalAggAway) {
+              comment = `🏆 ${match.awayTeam} är klara för avancemang (${match.homeTeam} kan inte nå ikapp)!`;
+              isWon = true;
+            } else if (homeNeed <= 5 && remainingHeats <= 2) {
+              comment = `🏁 ${match.homeTeam} behöver ${homeNeed} poäng till för att säkra avancemang.`;
+            } else if (awayNeed <= 5 && remainingHeats <= 2) {
+              comment = `🏁 ${match.awayTeam} behöver ${awayNeed} poäng till för att säkra avancemang.`;
+            }
+          }
+        } else {
+          // Vanlig seriematch: 46 poäng för seger
+          if (homeTotal >= 46) {
+            comment = `🏆 ${match.homeTeam} har säkrat matchsegern!`;
+            isWon = true;
+          } else if (awayTotal >= 46) {
+            comment = `🏆 ${match.awayTeam} har säkrat matchsegern!`;
+            isWon = true;
+          } else if (completedCount >= 10) {
+            if (awayTotal + maxRemainingPoints < homeTotal) {
+              comment = `🏆 ${match.homeTeam} har säkrat matchsegern!`;
+              isWon = true;
+            } else if (homeTotal + maxRemainingPoints < awayTotal) {
+              comment = `🏆 ${match.awayTeam} har säkrat matchsegern!`;
+              isWon = true;
+            }
           }
         }
 
@@ -1004,7 +1040,6 @@ const MATCHES_DATABASE = {
       }
     };
 
-    // Starta applikationen vid laddning
     window.addEventListener("DOMContentLoaded", () => App.init());
   </script>
 </body>
