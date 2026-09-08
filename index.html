@@ -457,19 +457,13 @@
   </div>
 
   <script>
-    /**
-     * Fasta profilfärger per klubb (oavsett hemma/borta)
-     */
     const TEAM_COLORS = {
-      "Indianerna": "#ef4444",          // Röd
-      "Eskilstuna Smederna": "#ef4444", // Samma röd
-      "Västervik": "#38bdf8",           // Ljusblå
-      "Dackarna": "#f59e0b"             // Orange/Gul
+      "Indianerna": "#ef4444",
+      "Eskilstuna Smederna": "#ef4444",
+      "Västervik": "#38bdf8",
+      "Dackarna": "#f59e0b"
     };
 
-    /**
-     * MATCHDATABAS
-     */
     const MATCHES_DATABASE = {
       "match-1-final-retur": {
         title: "Västervik vs Indianerna (Slutspel Match 2)",
@@ -527,9 +521,6 @@
       }
     };
 
-    /**
-     * SVEMO 5.8.5 KÖRSCHEMA ELITSERIEN 2026-
-     */
     const SVEMO_2026_SCHEDULE = [
       { heat: 1,  slots: [{team:'home', num:2, gate:1, h:'blue'}, {team:'away', num:1, gate:2, h:'white'}, {team:'home', num:1, gate:3, h:'red'}, {team:'away', num:2, gate:4, h:'yellow'}] },
       { heat: 2,  slots: [{team:'away', num:7, gate:1, h:'yellow'}, {team:'home', num:6, gate:2, h:'red'}, {team:'away', num:6, gate:3, h:'white'}, {team:'home', num:7, gate:4, h:'blue'}] },
@@ -590,11 +581,9 @@
 
         const match = MATCHES_DATABASE[matchId];
 
-        // Läs av klubbfärger med neutral fallback
         const homeColor = TEAM_COLORS[match.homeTeam] || "#ef4444";
         const awayColor = TEAM_COLORS[match.awayTeam] || "#38bdf8";
 
-        // Uppdatera namn och textfärger i sticky header
         const homeHeader = document.getElementById("header-home-name");
         const awayHeader = document.getElementById("header-away-name");
         homeHeader.innerText = match.homeTeam;
@@ -602,7 +591,6 @@
         awayHeader.innerText = match.awayTeam;
         awayHeader.style.color = awayColor;
 
-        // Uppdatera rubriker och färger i Statistik & Analys
         const homeStatsTitle = document.getElementById("stats-home-title");
         const awayStatsTitle = document.getElementById("stats-away-title");
         homeStatsTitle.innerText = match.homeTeam.toUpperCase();
@@ -753,7 +741,7 @@
           h.slots.forEach((slot, sIdx) => {
             const overrideVal = this.overrides[`${heatIdx}_${slot.team}_${sIdx}`];
             const activeRiderNum = (overrideVal !== undefined) ? overrideVal : slot.num;
-            const pt = this.scores[`${heatIdx}_${slot.team}_${slot.sIdx}`];
+            const pt = this.scores[`${heatIdx}_${slot.team}_${sIdx}`];
             const ridersMap = (slot.team === 'home') ? match.homeRiders : match.awayRiders;
             const riderName = activeRiderNum ? (ridersMap[activeRiderNum] || `Förare ${activeRiderNum}`) : "Ej nominerad";
 
@@ -825,7 +813,6 @@
         document.getElementById("away-total").innerText = runningAway;
         document.getElementById("stat-5-1").innerText = `${home5_1} – ${away5_1}`;
 
-        // Slutspels- / Totalsummering över 2 matcher
         const isPlayoff = match.firstLeg && match.firstLeg.homeTeamFirstLegScore !== null && match.firstLeg.awayTeamFirstLegScore !== null;
         const homeAggEl = document.getElementById("home-aggregate");
         const awayAggEl = document.getElementById("away-aggregate");
