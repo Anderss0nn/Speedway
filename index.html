@@ -71,9 +71,15 @@
       align-items: center;
     }
     .team-box { text-align: center; flex: 1; min-width: 0; }
-    .team-box .name { font-weight: 800; font-size: 13px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .team-box.home .name { color: var(--color-red); }
-    .team-box.away .name { color: var(--accent-cyan); }
+    .team-box .name {
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.2s ease;
+    }
     .score-total { font-size: 32px; font-weight: 900; line-height: 1; margin-top: 2px; }
     .aggregate-score { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 3px; }
     
@@ -394,13 +400,13 @@
         <tbody></tbody>
       </table>
 
-      <h3 id="stats-home-title" style="color:var(--color-red); margin: 14px 0 6px 4px; font-size: 14px;">HEMMALAG</h3>
+      <h3 id="stats-home-title" style="margin: 14px 0 6px 4px; font-size: 14px;">HEMMALAG</h3>
       <table class="stats-table" id="home-stats-table">
         <thead><tr><th>Förare</th><th>Heat</th><th>Poängrad</th><th>Snitt</th><th>Max</th><th>Totalt</th></tr></thead>
         <tbody></tbody>
       </table>
 
-      <h3 id="stats-away-title" style="color:var(--accent-cyan); margin: 14px 0 6px 4px; font-size: 14px;">BORTALAG</h3>
+      <h3 id="stats-away-title" style="margin: 14px 0 6px 4px; font-size: 14px;">BORTALAG</h3>
       <table class="stats-table" id="away-stats-table">
         <thead><tr><th>Förare</th><th>Heat</th><th>Poängrad</th><th>Snitt</th><th>Max</th><th>Totalt</th></tr></thead>
         <tbody></tbody>
@@ -452,18 +458,23 @@
 
   <script>
     /**
+     * Fasta profilfärger per klubb (oavsett hemma/borta)
+     */
+    const TEAM_COLORS = {
+      "Indianerna": "#ef4444",          // Röd
+      "Eskilstuna Smederna": "#ef4444", // Samma röd
+      "Västervik": "#38bdf8",           // Ljusblå
+      "Dackarna": "#f59e0b"             // Orange/Gul
+    };
+
+    /**
      * MATCHDATABAS
-     * Fyll på här varje söndag.
-     * Om det är ett returmöte i slutspelet anger du poängen från match 1 i "firstLeg".
-     * Om det är match 1 eller en vanlig seriematch sätter du: firstLeg: { homeTeamFirstLegScore: null, awayTeamFirstLegScore: null }
      */
     const MATCHES_DATABASE = {
       "match-1-final-retur": {
         title: "Västervik vs Indianerna (Slutspel Match 2)",
         homeTeam: "Västervik",
         awayTeam: "Indianerna",
-        // Exempel: I match 1 vann Indianerna hemma med 48-42.
-        // Då hade Västervik (kvällens hemmalag) 42 p, och Indianerna (kvällens bortalag) 48 p.
         firstLeg: {
           homeTeamFirstLegScore: 36,
           awayTeamFirstLegScore: 54
@@ -578,10 +589,27 @@
         this.focusIndex = 0;
 
         const match = MATCHES_DATABASE[matchId];
-        document.getElementById("header-home-name").innerText = match.homeTeam;
-        document.getElementById("header-away-name").innerText = match.awayTeam;
-        document.getElementById("stats-home-title").innerText = match.homeTeam.toUpperCase();
-        document.getElementById("stats-away-title").innerText = match.awayTeam.toUpperCase();
+
+        // Läs av klubbfärger med neutral fallback
+        const homeColor = TEAM_COLORS[match.homeTeam] || "#ef4444";
+        const awayColor = TEAM_COLORS[match.awayTeam] || "#38bdf8";
+
+        // Uppdatera namn och textfärger i sticky header
+        const homeHeader = document.getElementById("header-home-name");
+        const awayHeader = document.getElementById("header-away-name");
+        homeHeader.innerText = match.homeTeam;
+        homeHeader.style.color = homeColor;
+        awayHeader.innerText = match.awayTeam;
+        awayHeader.style.color = awayColor;
+
+        // Uppdatera rubriker och färger i Statistik & Analys
+        const homeStatsTitle = document.getElementById("stats-home-title");
+        const awayStatsTitle = document.getElementById("stats-away-title");
+        homeStatsTitle.innerText = match.homeTeam.toUpperCase();
+        homeStatsTitle.style.color = homeColor;
+        awayStatsTitle.innerText = match.awayTeam.toUpperCase();
+        awayStatsTitle.style.color = awayColor;
+
         document.getElementById("p-home-title").innerText = match.homeTeam;
         document.getElementById("p-away-title").innerText = match.awayTeam;
 
@@ -927,7 +955,6 @@
         let isWon = false;
 
         if (isPlayoff) {
-          // Totalt 90 poäng över 30 heat: 91 poäng krävs för att säkra avancemang utan skiljeheat
           const homeNeed = 91 - totalAggHome;
           const awayNeed = 91 - totalAggAway;
 
@@ -954,7 +981,6 @@
             }
           }
         } else {
-          // Vanlig seriematch: 46 poäng för seger
           if (homeTotal >= 46) {
             comment = `🏆 ${match.homeTeam} har säkrat matchsegern!`;
             isWon = true;
