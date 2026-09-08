@@ -3,92 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Speedway Liveprotokoll</title>
+  <title>Bauhausligan Liveprotokoll</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --border: #334155;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --red-helmet: #ef4444;
-      --blue-helmet: #3b82f6;
-      --white-helmet: #f8fafc;
-      --yellow-helmet: #eab308;
-      --home-accent: #dc2626;
-      --away-accent: #06b6d4;
-      --lead-green: #22c55e;
-      --lead-red: #ef4444;
+      --bg: #0b1329;
+      --card-bg: #162035;
+      --card-header: #1e2c47;
+      --border-color: #2b3b5b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --color-red: #ef4444;
+      --color-blue: #3b82f6;
+      --color-white: #f8fafc;
+      --color-yellow: #eab308;
+      
+      --accent-cyan: #38bdf8;
+      --accent-green: #22c55e;
+      --accent-crimson: #f43f5e;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 90px; }
+    body { background: var(--bg); color: var(--text-main); padding-bottom: 80px; }
 
-    /* Match Header */
+    /* Matchväljare i toppen */
+    .match-selector-bar {
+      background: #080d1c;
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .match-selector-bar label {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .match-select {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    /* Sticky Match Header */
     header {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(15, 23, 42, 0.95);
+      background: rgba(11, 19, 41, 0.95);
       backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-color);
       padding: 10px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .team-box { text-align: center; flex: 1; }
-    .team-box.home .name { color: var(--home-accent); font-weight: 800; font-size: 14px; text-transform: uppercase; }
-    .team-box.away .name { color: var(--away-accent); font-weight: 800; font-size: 14px; text-transform: uppercase; }
-    .score-total { font-size: 32px; font-weight: 900; line-height: 1; margin-top: 4px; }
+    .team-box { text-align: center; flex: 1; min-width: 0; }
+    .team-box .name { font-weight: 800; font-size: 14px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .team-box.home .name { color: var(--color-red); }
+    .team-box.away .name { color: var(--accent-cyan); }
+    .score-total { font-size: 34px; font-weight: 900; line-height: 1; margin-top: 4px; }
     
-    .center-score-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0 10px;
-    }
-    .vs-divider { color: var(--muted); font-weight: 700; font-size: 12px; }
+    .center-score-box { display: flex; flex-direction: column; align-items: center; padding: 0 10px; }
+    .vs-divider { color: var(--text-muted); font-weight: 700; font-size: 11px; }
     .diff-badge {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       padding: 2px 8px;
       border-radius: 999px;
       margin-top: 4px;
       display: none;
     }
-    .diff-badge.ind-lead { background: rgba(34, 197, 94, 0.2); color: var(--lead-green); border: 1px solid var(--lead-green); display: inline-block; }
-    .diff-badge.vas-lead { background: rgba(239, 68, 68, 0.2); color: var(--lead-red); border: 1px solid var(--lead-red); display: inline-block; }
-    .diff-badge.tie { background: rgba(148, 163, 184, 0.2); color: var(--muted); border: 1px solid var(--border); display: inline-block; }
+    .diff-badge.home-lead { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); display: inline-block; }
+    .diff-badge.away-lead { background: rgba(239, 68, 68, 0.2); color: var(--color-red); border: 1px solid var(--color-red); display: inline-block; }
+    .diff-badge.tie { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); border: 1px solid var(--border-color); display: inline-block; }
 
-    /* Dynamisk matchkommentar */
     .clinch-alert {
       display: none;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border: 1px solid #38bdf8;
-      border-left: 4px solid #38bdf8;
+      background: linear-gradient(135deg, #162035, #0b1329);
+      border: 1px solid var(--accent-cyan);
+      border-left: 4px solid var(--accent-cyan);
       border-radius: 10px;
       padding: 10px 14px;
       margin-bottom: 12px;
       font-size: 13px;
       font-weight: 700;
-      color: #38bdf8;
-      line-height: 1.4;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      color: var(--accent-cyan);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
     .clinch-alert.won {
-      border-color: var(--lead-green);
-      border-left-color: var(--lead-green);
+      border-color: var(--accent-green);
+      border-left-color: var(--accent-green);
       color: #4ade80;
     }
 
-    /* Tabs */
+    /* Tab bar */
     .tab-bar {
       display: flex;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
       position: sticky;
-      top: 65px;
+      top: 61px;
       z-index: 90;
     }
     .tab-btn {
@@ -96,16 +123,15 @@
       padding: 12px 4px;
       background: none;
       border: none;
-      color: var(--muted);
+      color: var(--text-muted);
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
     }
-    .tab-btn.active { color: var(--text); border-bottom: 3px solid var(--home-accent); }
+    .tab-btn.active { color: var(--text-main); border-bottom: 3px solid var(--accent-cyan); }
 
-    /* Views */
-    .container { padding: 12px; max-width: 600px; margin: 0 auto; }
+    .container { padding: 12px; max-width: 620px; margin: 0 auto; }
     
     /* Fokus Navigation */
     .focus-nav {
@@ -113,82 +139,63 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 14px;
-      background: var(--card);
-      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 8px 12px;
     }
     .nav-btn {
-      background: #243247;
-      color: var(--text);
-      border: 1px solid var(--border);
+      background: #1e2c47;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
       padding: 8px 16px;
       border-radius: 8px;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
     }
     .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .focus-title { font-weight: 800; font-size: 16px; letter-spacing: 0.5px; }
+    .focus-title { font-weight: 800; font-size: 15px; letter-spacing: 0.5px; }
 
+    /* Heat Cards */
     .heat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
       margin-bottom: 14px;
       overflow: hidden;
     }
     .heat-header {
-      background: #182234;
+      background: var(--card-header);
       padding: 10px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-color);
       gap: 8px;
     }
-    .heat-header-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .heat-header-left { display: flex; align-items: center; gap: 8px; }
     .heat-title { font-weight: 700; font-size: 14px; }
     .heat-time-input {
       width: 75px;
-      background: #0f172a;
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      color: var(--text);
+      background: #0b1329;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
       font-size: 13px;
       font-weight: 600;
       padding: 4px 6px;
       text-align: center;
       outline: none;
     }
-    .heat-time-input:focus { border-color: #38bdf8; }
+    .heat-time-input:focus { border-color: var(--accent-cyan); }
     .heat-score { font-weight: 800; font-size: 14px; white-space: nowrap; }
 
     /* Förarrad */
-    .rider-card-row {
-      padding: 10px 12px;
-      border-bottom: 1px solid #243247;
-    }
+    .rider-card-row { padding: 10px 12px; border-bottom: 1px solid #1c2840; }
     .rider-card-row:last-child { border-bottom: none; }
-    
-    .rider-top-line {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      gap: 8px;
-    }
-    .rider-title-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-      min-width: 0;
-    }
+    .rider-top-line { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+    .rider-title-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
 
     .gate-pill {
       font-size: 10px;
@@ -198,9 +205,9 @@
       letter-spacing: 0.4px;
       flex-shrink: 0;
       text-align: center;
-      background: #334155;
-      color: #f8fafc;
-      border: 1px solid #475569;
+      background: #22314d;
+      color: var(--text-main);
+      border: 1px solid #33466d;
     }
 
     .helmet {
@@ -210,10 +217,10 @@
       flex-shrink: 0;
       border: 1px solid rgba(0,0,0,0.3);
     }
-    .helmet.red { background: var(--red-helmet); }
-    .helmet.blue { background: var(--blue-helmet); }
-    .helmet.white { background: var(--white-helmet); border: 1px solid #94a3b8; }
-    .helmet.yellow { background: var(--yellow-helmet); }
+    .helmet.red { background: var(--color-red); }
+    .helmet.blue { background: var(--color-blue); }
+    .helmet.white { background: var(--color-white); border: 1px solid #94a3b8; }
+    .helmet.yellow { background: var(--color-yellow); }
 
     .rider-full-name {
       font-size: 14px;
@@ -222,140 +229,92 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .rider-sub-badge {
-      font-size: 11px;
-      color: var(--muted);
-      margin-left: 4px;
-      font-weight: normal;
-    }
+    .rider-sub-badge { font-size: 11px; color: var(--text-muted); margin-left: 4px; font-weight: normal; }
 
     .edit-rider-select {
-      background: #0f172a;
-      color: var(--muted);
-      border: 1px solid var(--border);
+      background: #0b1329;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
       border-radius: 6px;
-      padding: 3px 4px;
+      padding: 4px 6px;
       font-size: 11px;
       font-weight: 600;
       outline: none;
-      max-width: 85px;
+      max-width: 105px;
       flex-shrink: 0;
     }
 
-    .score-buttons-bar {
-      display: flex;
-      gap: 6px;
-      width: 100%;
-    }
+    .score-buttons-bar { display: flex; gap: 6px; width: 100%; }
     .btn-pt {
       flex: 1;
       height: 38px;
       border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #243247;
-      color: var(--text);
+      border: 1px solid var(--border-color);
+      background: #1e2c47;
+      color: var(--text-main);
       font-weight: 800;
       font-size: 14px;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
-    .btn-pt.active {
-      background: #38bdf8;
-      color: #0f172a;
-      border-color: #38bdf8;
-    }
-    .btn-pt.active-status {
-      background: #f43f5e;
-      color: #ffffff;
-      border-color: #f43f5e;
-    }
-    .btn-pt:disabled {
-      opacity: 0.18;
-      cursor: not-allowed;
-      border-color: #1e293b;
-      background: #151e2e;
-    }
+    .btn-pt.active { background: var(--accent-cyan); color: #0b1329; border-color: var(--accent-cyan); }
+    .btn-pt.active-status { background: var(--accent-crimson); color: #ffffff; border-color: var(--accent-crimson); }
+    .btn-pt:disabled { opacity: 0.2; cursor: not-allowed; border-color: transparent; }
 
-    /* Statistik Tabeller */
+    /* Tabeller */
     .stats-table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 18px;
-      background: var(--card);
+      background: var(--card-bg);
       border-radius: 12px;
       overflow: hidden;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-color);
     }
-    .stats-table th, .stats-table td {
-      padding: 8px 10px;
-      text-align: left;
-      font-size: 12px;
-    }
-    .stats-table th { background: #182234; color: var(--muted); font-size: 11px; text-transform: uppercase; }
-    .stats-table tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+    .stats-table th, .stats-table td { padding: 8px 10px; text-align: left; font-size: 12px; }
+    .stats-table th { background: var(--card-header); color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
+    .stats-table tr:not(:last-child) td { border-bottom: 1px solid var(--border-color); }
     .stats-table td.center { text-align: center; }
     .stats-table td.right { text-align: right; font-weight: 800; }
 
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 18px;
-    }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
     .summary-box {
-      background: var(--card);
-      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 10px;
       padding: 10px;
       text-align: center;
     }
-    .summary-box .val {
-      font-size: 18px;
-      font-weight: 800;
-      color: #38bdf8;
-      margin-top: 2px;
-    }
-    .summary-box .lbl {
-      font-size: 11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      font-weight: 600;
-    }
+    .summary-box .val { font-size: 18px; font-weight: 800; color: var(--accent-cyan); margin-top: 2px; }
+    .summary-box .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
 
-    .action-bar {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .action-bar { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
     .export-btn {
-      background: #38bdf822;
-      color: #38bdf8;
-      border: 1px solid #38bdf866;
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.4);
       padding: 10px 20px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
     }
-    .export-btn:active { background: #38bdf844; }
     .reset-btn {
-      background: #dc262622;
-      color: #ef4444;
-      border: 1px solid #dc262666;
+      background: rgba(244, 63, 94, 0.12);
+      color: var(--accent-crimson);
+      border: 1px solid rgba(244, 63, 94, 0.4);
       padding: 10px 20px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
     }
-    .reset-btn:active { background: #dc262644; }
 
-    /* Print View */
+    /* Utskriftslayout */
     #print-sheet { display: none; }
     @media print {
       body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; }
-      header, .tab-bar, .container { display: none !important; }
+      .match-selector-bar, header, .tab-bar, .container { display: none !important; }
       #print-sheet { display: block !important; padding: 15px; }
       .print-header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 8px; }
       .print-header h1 { font-size: 20px; margin-bottom: 4px; }
@@ -373,9 +332,15 @@
 </head>
 <body>
 
+  <!-- Matchväljare -->
+  <div class="match-selector-bar">
+    <label for="match-select">Aktuell match:</label>
+    <select id="match-select" class="match-select" onchange="App.onSelectMatch(this.value)"></select>
+  </div>
+
   <header>
     <div class="team-box home">
-      <div class="name">Indianerna</div>
+      <div id="header-home-name" class="name">Hemmalag</div>
       <div id="home-total" class="score-total">0</div>
     </div>
     <div class="center-score-box">
@@ -383,15 +348,15 @@
       <div id="diff-badge" class="diff-badge">Lika</div>
     </div>
     <div class="team-box away">
-      <div class="name">Västervik</div>
+      <div id="header-away-name" class="name">Bortalag</div>
       <div id="away-total" class="score-total">0</div>
     </div>
   </header>
 
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="showTab('focus')">Fokusheat</button>
-    <button class="tab-btn" onclick="showTab('heats')">Körschema</button>
-    <button class="tab-btn" onclick="showTab('riders')">Statistik & Analys</button>
+    <button class="tab-btn active" onclick="App.showTab('focus')">Fokusheat</button>
+    <button class="tab-btn" onclick="App.showTab('heats')">Körschema</button>
+    <button class="tab-btn" onclick="App.showTab('riders')">Statistik & Analys</button>
   </div>
 
   <main class="container">
@@ -399,9 +364,9 @@
 
     <div id="tab-focus">
       <div class="focus-nav">
-        <button class="nav-btn" id="prev-heat-btn" onclick="changeFocusHeat(-1)">◀ Föregående</button>
+        <button class="nav-btn" id="prev-heat-btn" onclick="App.changeFocusHeat(-1)">◀ Föregående</button>
         <span class="focus-title" id="focus-indicator">HEAT 1 / 15</span>
-        <button class="nav-btn" id="next-heat-btn" onclick="changeFocusHeat(1)">Nästa ▶</button>
+        <button class="nav-btn" id="next-heat-btn" onclick="App.changeFocusHeat(1)">Nästa ▶</button>
       </div>
       <div id="focus-heat-card-container"></div>
     </div>
@@ -409,7 +374,7 @@
     <div id="tab-heats" style="display:none;"></div>
 
     <div id="tab-riders" style="display:none;">
-      <h3 style="color:var(--text); margin: 6px 0 8px 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Matchanalys</h3>
+      <h3 style="color:var(--text-main); margin: 6px 0 8px 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Matchanalys</h3>
       <div class="summary-grid">
         <div class="summary-box">
           <div class="lbl">Femettor (5–1)</div>
@@ -421,46 +386,47 @@
         </div>
       </div>
 
-      <h3 style="color:var(--text); margin: 10px 0 6px 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Startspårsanalys</h3>
+      <h3 style="color:var(--text-main); margin: 10px 0 6px 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Startspårsanalys</h3>
       <table class="stats-table" id="gate-stats-table">
         <thead><tr><th>Spår</th><th class="center">Segrar (3p)</th><th class="center">Totalpoäng</th><th class="right">Seger %</th></tr></thead>
         <tbody></tbody>
       </table>
 
-      <h3 style="color:var(--home-accent); margin: 14px 0 6px 4px; font-size: 14px;">INDIANERNA</h3>
-      <table class="stats-table" id="ind-stats">
+      <h3 id="stats-home-title" style="color:var(--color-red); margin: 14px 0 6px 4px; font-size: 14px;">HEMMALAG</h3>
+      <table class="stats-table" id="home-stats-table">
         <thead><tr><th>Förare</th><th>Heat</th><th>Poängrad</th><th>Snitt</th><th>Max</th><th>Totalt</th></tr></thead>
         <tbody></tbody>
       </table>
 
-      <h3 style="color:var(--away-accent); margin: 14px 0 6px 4px; font-size: 14px;">VÄSTERVIK</h3>
-      <table class="stats-table" id="vas-stats">
+      <h3 id="stats-away-title" style="color:var(--accent-cyan); margin: 14px 0 6px 4px; font-size: 14px;">BORTALAG</h3>
+      <table class="stats-table" id="away-stats-table">
         <thead><tr><th>Förare</th><th>Heat</th><th>Poängrad</th><th>Snitt</th><th>Max</th><th>Totalt</th></tr></thead>
         <tbody></tbody>
       </table>
 
       <div class="action-bar">
-        <button class="export-btn" onclick="exportPDF()">📄 Exportera som PDF</button>
-        <button class="reset-btn" onclick="resetAll()">Återställ hela protokollet</button>
+        <button class="export-btn" onclick="window.print()">📄 Exportera / Skriv ut protokoll</button>
+        <button class="reset-btn" onclick="App.resetCurrentMatch()">Nollställ protokollet för denna match</button>
       </div>
     </div>
   </main>
 
+  <!-- Utskriftsmall -->
   <div id="print-sheet">
     <div class="print-header">
       <h1>MATCHPROTOKOLL SPEEDWAY</h1>
-      <h2 id="p-score-header">Indianerna 0 - 0 Västervik</h2>
+      <h2 id="p-score-header">Hemmalag 0 - 0 Bortalag</h2>
     </div>
     <div class="print-grid">
       <div>
-        <h3 style="margin-bottom:4px; font-size:12px;">Indianerna</h3>
+        <h3 id="p-home-title" style="margin-bottom:4px; font-size:12px;">Hemmalag</h3>
         <table class="p-table" id="p-ind-stats">
           <thead><tr><th>#</th><th>Förare</th><th>Heat</th><th>Poängrad</th><th>Poäng</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
       <div>
-        <h3 style="margin-bottom:4px; font-size:12px;">Västervik</h3>
+        <h3 id="p-away-title" style="margin-bottom:4px; font-size:12px;">Bortalag</h3>
         <table class="p-table" id="p-vas-stats">
           <thead><tr><th>#</th><th>Förare</th><th>Heat</th><th>Poängrad</th><th>Poäng</th></tr></thead>
           <tbody></tbody>
@@ -473,8 +439,8 @@
         <tr>
           <th>Heat</th>
           <th>Tid</th>
-          <th>Indianerna</th>
-          <th>Västervik</th>
+          <th>Hemmalag</th>
+          <th>Bortalag</th>
           <th>Heatresultat</th>
           <th>Matchställning</th>
         </tr>
@@ -484,489 +450,562 @@
   </div>
 
   <script>
-    const HOME_RIDERS = {
-      1: "Szymon Wozniak",
-      2: "Luke Becker",
-      3: "Oliver Berntzon",
-      4: "Kai Huckenbeck",
-      5: "Przemyslaw Pawlicki",
-      6: "Jonathan Grahn",
-      7: "Rasmus Karlsson"
+    /**
+     * MATCHDATABAS
+     * Fyll på med veckans matcher här på söndagar.
+     */
+const MATCHES_DATABASE = {
+      "match-1": {
+        title: "Västervik vs Indianerna",
+        homeTeam: "Västervik",
+        awayTeam: "Indianerna",
+        homeRiders: {
+          1: "Robert Lambert (C)",
+          2: "Tom Brennan",
+          3: "Jacob Thorssell",
+          4: "Grzegorz Zengota",
+          5: "Rohan Tungate",
+          6: "Victor Palovaara",
+          7: "Anton Karlsson"
+        },
+        awayRiders: {
+          1: "Szymon Wozniak",
+          2: "Luke Becker",
+          3: "Kai Huckenbeck",
+          4: "Oliver Berntzon",
+          5: "Przemyslaw Pawlicki",
+          6: "Rasmus Karlsson",
+          7: "Jonatan Grahn"
+        }
+      },
+      "match-2": {
+        title: "Eskilstuna Smederna vs Dackarna",
+        homeTeam: "Eskilstuna Smederna",
+        awayTeam: "Dackarna",
+        homeRiders: {
+          1: "Maciej Janowski",
+          2: "Mikkel Andersen",
+          3: "Mathias Pollestad",
+          4: "Gleb Chugunov",
+          5: "Andzejs Lebedevs",
+          6: "Daniel Henderson",
+          7: "Joel Andersson"
+        },
+        awayRiders: {
+          1: "Andreas Lyager",
+          2: "Tomas H Jonasson",
+          3: "Artem Laguta",
+          4: "Matias Nielsen",
+          5: "Timo Lahti",
+          6: "Avon Van Dyck",
+          7: "Bastian Pedersen"
+        }
+      }
     };
 
-    const AWAY_RIDERS = {
-      1: "Robert Lambert",
-      2: "Tom Brennan",
-      3: "Jacob Thorssell",
-      4: "Grzegorz Zengota",
-      5: "Rohan Tungate",
-      6: "Anton Karlsson",
-      7: "Victor Palovaara"
-    };
-
-    // Officiell startspårsrotation per heat (Spår 1-4) och hjälmfärger
-    const BASE_SCHEDULE = [
-      { heat: 1,  home: [{num: 1, gate: 1, h: "red"}, {num: 2, gate: 3, h: "blue"}], away: [{num: 1, gate: 2, h: "white"}, {num: 2, gate: 4, h: "yellow"}] },
-      { heat: 2,  home: [{num: 6, gate: 2, h: "red"}, {num: 7, gate: 4, h: "blue"}], away: [{num: 6, gate: 1, h: "white"}, {num: 7, gate: 3, h: "yellow"}] },
-      { heat: 3,  home: [{num: 3, gate: 1, h: "red"}, {num: 4, gate: 3, h: "blue"}], away: [{num: 3, gate: 2, h: "white"}, {num: 4, gate: 4, h: "yellow"}] },
-      { heat: 4,  home: [{num: 5, gate: 2, h: "red"}, {num: 7, gate: 4, h: "blue"}], away: [{num: 5, gate: 3, h: "white"}, {num: 7, gate: 1, h: "yellow"}] },
-      { heat: 5,  home: [{num: 2, gate: 3, h: "red"}, {num: 6, gate: 1, h: "blue"}], away: [{num: 4, gate: 2, h: "white"}, {num: 6, gate: 4, h: "yellow"}] },
-      { heat: 6,  home: [{num: 1, gate: 2, h: "red"}, {num: 3, gate: 4, h: "blue"}], away: [{num: 1, gate: 3, h: "white"}, {num: 7, gate: 1, h: "yellow"}] },
-      { heat: 7,  home: [{num: 4, gate: 4, h: "red"}, {num: 5, gate: 2, h: "blue"}], away: [{num: 2, gate: 1, h: "white"}, {num: 3, gate: 3, h: "yellow"}] },
-      { heat: 8,  home: [{num: 2, gate: 3, h: "red"}, {num: 3, gate: 1, h: "blue"}], away: [{num: 4, gate: 4, h: "white"}, {num: 7, gate: 2, h: "yellow"}] },
-      { heat: 9,  home: [{num: 5, gate: 3, h: "red"}, {num: 6, gate: 1, h: "blue"}], away: [{num: 1, gate: 4, h: "white"}, {num: 2, gate: 2, h: "yellow"}] },
-      { heat: 10, home: [{num: 1, gate: 4, h: "red"}, {num: 7, gate: 2, h: "blue"}], away: [{num: 3, gate: 1, h: "white"}, {num: 5, gate: 3, h: "yellow"}] },
-      { heat: 11, home: [{num: 4, gate: 2, h: "red"}, {num: 5, gate: 4, h: "blue"}], away: [{num: 2, gate: 3, h: "white"}, {num: 6, gate: 1, h: "yellow"}] },
-      { heat: 12, home: [{num: 6, gate: 1, h: "red"}, {num: 7, gate: 3, h: "blue"}], away: [{num: 5, gate: 2, h: "white"}, {num: 6, gate: 4, h: "yellow"}] },
-      { heat: 13, home: [{num: 1, gate: 1, h: "red"}, {num: 4, gate: 3, h: "blue"}], away: [{num: 1, gate: 2, h: "white"}, {num: 4, gate: 4, h: "yellow"}] },
-      { heat: 14, home: [{num: 2, gate: 4, h: "red"}, {num: 3, gate: 2, h: "blue"}], away: [{num: 3, gate: 3, h: "white"}, {num: 5, gate: 1, h: "yellow"}] },
-      { heat: 15, home: [{num: null, gate: 1, h: "red"}, {num: null, gate: 3, h: "blue"}], away: [{num: null, gate: 2, h: "white"}, {num: null, gate: 4, h: "yellow"}] }
+    /**
+     * SVEMO 5.8.5 KÖRSCHEMA ELITSERIEN 2026-
+     * Mappning av Bana 1-4 per heat med färg och förarnummer.
+     */
+    const SVEMO_2026_SCHEDULE = [
+      // Heat 1: B2, V1, R1, G2
+      { heat: 1,  slots: [{team:'home', num:2, gate:1, h:'blue'}, {team:'away', num:1, gate:2, h:'white'}, {team:'home', num:1, gate:3, h:'red'}, {team:'away', num:2, gate:4, h:'yellow'}] },
+      // Heat 2: G7, R6, V6, B7
+      { heat: 2,  slots: [{team:'away', num:7, gate:1, h:'yellow'}, {team:'home', num:6, gate:2, h:'red'}, {team:'away', num:6, gate:3, h:'white'}, {team:'home', num:7, gate:4, h:'blue'}] },
+      // Heat 3: R3, V3, B4, G4
+      { heat: 3,  slots: [{team:'home', num:3, gate:1, h:'red'}, {team:'away', num:3, gate:2, h:'white'}, {team:'home', num:4, gate:3, h:'blue'}, {team:'away', num:4, gate:4, h:'yellow'}] },
+      // Heat 4: V5, B5, G7, R6
+      { heat: 4,  slots: [{team:'away', num:5, gate:1, h:'white'}, {team:'home', num:5, gate:2, h:'blue'}, {team:'away', num:7, gate:3, h:'yellow'}, {team:'home', num:6, gate:4, h:'red'}] },
+      // Heat 5: B7, G4, R2, V6
+      { heat: 5,  slots: [{team:'home', num:7, gate:1, h:'blue'}, {team:'away', num:4, gate:2, h:'yellow'}, {team:'home', num:2, gate:3, h:'red'}, {team:'away', num:6, gate:4, h:'white'}] },
+      // Heat 6: G2, R3, V1, B4
+      { heat: 6,  slots: [{team:'away', num:2, gate:1, h:'yellow'}, {team:'home', num:3, gate:2, h:'red'}, {team:'away', num:1, gate:3, h:'white'}, {team:'home', num:4, gate:4, h:'blue'}] },
+      // Heat 7: G4, R1, V3, B2
+      { heat: 7,  slots: [{team:'away', num:4, gate:1, h:'yellow'}, {team:'home', num:1, gate:2, h:'red'}, {team:'away', num:3, gate:3, h:'white'}, {team:'home', num:2, gate:4, h:'blue'}] },
+      // Heat 8: B4, G7, R3, V5
+      { heat: 8,  slots: [{team:'home', num:4, gate:1, h:'blue'}, {team:'away', num:7, gate:2, h:'yellow'}, {team:'home', num:3, gate:3, h:'red'}, {team:'away', num:5, gate:4, h:'white'}] },
+      // Heat 9: B5, G2, R6, V1
+      { heat: 9,  slots: [{team:'home', num:5, gate:1, h:'blue'}, {team:'away', num:2, gate:2, h:'yellow'}, {team:'home', num:6, gate:3, h:'red'}, {team:'away', num:1, gate:4, h:'white'}] },
+      // Heat 10: V6, B7, G5, R1
+      { heat: 10, slots: [{team:'away', num:6, gate:1, h:'white'}, {team:'home', num:7, gate:2, h:'blue'}, {team:'away', num:5, gate:3, h:'yellow'}, {team:'home', num:1, gate:4, h:'red'}] },
+      // Heat 11: V3, B4, G2, R5
+      { heat: 11, slots: [{team:'away', num:3, gate:1, h:'white'}, {team:'home', num:4, gate:2, h:'blue'}, {team:'away', num:2, gate:3, h:'yellow'}, {team:'home', num:5, gate:4, h:'red'}] },
+      // Heat 12: B6, V6, R7, G7
+      { heat: 12, slots: [{team:'home', num:6, gate:1, h:'blue'}, {team:'away', num:6, gate:2, h:'white'}, {team:'home', num:7, gate:3, h:'red'}, {team:'away', num:7, gate:4, h:'yellow'}] },
+      // Heat 13: V1, R2, G4, B3
+      { heat: 13, slots: [{team:'away', num:1, gate:1, h:'white'}, {team:'home', num:2, gate:2, h:'red'}, {team:'away', num:4, gate:3, h:'yellow'}, {team:'home', num:3, gate:4, h:'blue'}] },
+      // Heat 14: R1, G5, B5, V3
+      { heat: 14, slots: [{team:'home', num:1, gate:1, h:'red'}, {team:'away', num:5, gate:2, h:'yellow'}, {team:'home', num:5, gate:3, h:'blue'}, {team:'away', num:3, gate:4, h:'white'}] },
+      // Heat 15 (Nominering): V/R, V/R, G/B, G/B
+      { heat: 15, slots: [{team:'away', num:null, gate:1, h:'white'}, {team:'home', num:null, gate:2, h:'red'}, {team:'away', num:null, gate:3, h:'yellow'}, {team:'home', num:null, gate:4, h:'blue'}] }
     ];
 
-    const STORAGE_PREFIX = "speedway_app_data_v18";
-    let scores = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_scores`) || "{}");
-    let riderOverrides = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_overrides`) || "{}");
-    let heatTimes = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_times`) || "{}");
-    let currentFocusHeatIndex = 0;
+    /**
+     * APP ENGINE & STATEMANAGEMENT
+     */
+    const App = {
+      currentMatchId: null,
+      focusIndex: 0,
+      scores: {},
+      overrides: {},
+      times: {},
 
-    function getSelectedRiderNum(heatIdx, team, rIdx, defaultNum) {
-      const key = `${heatIdx}_${team}_${rIdx}`;
-      if (riderOverrides[key] !== undefined) {
-        return riderOverrides[key];
-      }
-      return defaultNum;
-    }
+      init() {
+        this.populateMatchSelect();
+        const storedMatch = localStorage.getItem("speedway_active_match");
+        const defaultMatch = (storedMatch && MATCHES_DATABASE[storedMatch]) ? storedMatch : Object.keys(MATCHES_DATABASE)[0];
+        this.loadMatch(defaultMatch);
+      },
 
-    function onRiderChange(heatIdx, team, rIdx, newNumStr) {
-      const key = `${heatIdx}_${team}_${rIdx}`;
-      if (newNumStr === "") {
-        riderOverrides[key] = null;
-      } else {
-        riderOverrides[key] = parseInt(newNumStr);
-      }
-      localStorage.setItem(`${STORAGE_PREFIX}_overrides`, JSON.stringify(riderOverrides));
-      render();
-    }
+      populateMatchSelect() {
+        const select = document.getElementById("match-select");
+        select.innerHTML = "";
+        Object.keys(MATCHES_DATABASE).forEach(id => {
+          const opt = document.createElement("option");
+          opt.value = id;
+          opt.textContent = MATCHES_DATABASE[id].title;
+          select.appendChild(opt);
+        });
+      },
 
-    function onTimeChange(heatIdx, val) {
-      heatTimes[heatIdx] = val;
-      localStorage.setItem(`${STORAGE_PREFIX}_times`, JSON.stringify(heatTimes));
-      document.querySelectorAll(`input[data-heat="${heatIdx}"]`).forEach(el => {
-        if (el.value !== val) el.value = val;
-      });
-      render();
-    }
+      onSelectMatch(matchId) {
+        this.loadMatch(matchId);
+      },
 
-    function saveScore(heatIdx, team, rIdx, ptLabel) {
-      const key = `${heatIdx}_${team}_${rIdx}`;
-      if (scores[key] === ptLabel) {
-        delete scores[key];
-      } else {
-        scores[key] = ptLabel;
-      }
-      localStorage.setItem(`${STORAGE_PREFIX}_scores`, JSON.stringify(scores));
-      render();
-    }
+      loadMatch(matchId) {
+        this.currentMatchId = matchId;
+        localStorage.setItem("speedway_active_match", matchId);
+        document.getElementById("match-select").value = matchId;
 
-    function toggleMF(heatIdx, team, rIdx) {
-      const key = `${heatIdx}_${team}_${rIdx}`;
-      const current = scores[key];
-      if (current === 'M') {
-        scores[key] = 'F';
-      } else if (current === 'F') {
-        delete scores[key];
-      } else {
-        scores[key] = 'M';
-      }
-      localStorage.setItem(`${STORAGE_PREFIX}_scores`, JSON.stringify(scores));
-      render();
-    }
+        const pfx = `speedway_data_${matchId}_`;
+        this.scores = JSON.parse(localStorage.getItem(`${pfx}scores`) || "{}");
+        this.overrides = JSON.parse(localStorage.getItem(`${pfx}overrides`) || "{}");
+        this.times = JSON.parse(localStorage.getItem(`${pfx}times`) || "{}");
+        this.focusIndex = 0;
 
-    function changeFocusHeat(delta) {
-      currentFocusHeatIndex = Math.max(0, Math.min(14, currentFocusHeatIndex + delta));
-      render();
-    }
+        const match = MATCHES_DATABASE[matchId];
+        document.getElementById("header-home-name").innerText = match.homeTeam;
+        document.getElementById("header-away-name").innerText = match.awayTeam;
+        document.getElementById("stats-home-title").innerText = match.homeTeam.toUpperCase();
+        document.getElementById("stats-away-title").innerText = match.awayTeam.toUpperCase();
+        document.getElementById("p-home-title").innerText = match.homeTeam;
+        document.getElementById("p-away-title").innerText = match.awayTeam;
 
-    function generateHeatCardHTML(h, heatIdx, runningHome, runningAway, hScore, aScore, usedPointsInHeat) {
-      const currentTimeVal = heatTimes[heatIdx] || "";
-      let html = `
-        <div class="heat-card">
-          <div class="heat-header">
-            <div class="heat-header-left">
-              <span class="heat-title">HEAT ${h.heat}</span>
-              <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" data-heat="${heatIdx}" class="heat-time-input" placeholder="Tid (sek)" value="${currentTimeVal}" oninput="onTimeChange(${heatIdx}, this.value)" />
-            </div>
-            <span class="heat-score">${hScore} - ${aScore} <span style="color:var(--muted); font-size:12px;">(${runningHome} - ${runningAway})</span></span>
-          </div>
-      `;
+        this.renderFull();
+      },
 
-      const allRidersInHeat = [
-        ...h.home.map((r, rIdx) => ({ ...r, team: 'home', rIdx, teamName: 'Indianerna', ridersMap: HOME_RIDERS })),
-        ...h.away.map((r, rIdx) => ({ ...r, team: 'away', rIdx, teamName: 'Västervik', ridersMap: AWAY_RIDERS }))
-      ].sort((a, b) => a.gate - b.gate);
+      saveState() {
+        const pfx = `speedway_data_${this.currentMatchId}_`;
+        localStorage.setItem(`${pfx}scores`, JSON.stringify(this.scores));
+        localStorage.setItem(`${pfx}overrides`, JSON.stringify(this.overrides));
+        localStorage.setItem(`${pfx}times`, JSON.stringify(this.times));
+      },
 
-      allRidersInHeat.forEach(r => {
-        const currentNum = getSelectedRiderNum(heatIdx, r.team, r.rIdx, r.num);
-        const activePt = scores[`${heatIdx}_${r.team}_${r.rIdx}`];
-        html += createRiderRow(heatIdx, r.team, r.rIdx, r.gate, r.h, r.ridersMap, currentNum, activePt, usedPointsInHeat, r.teamName);
-      });
-
-      html += `</div>`;
-      return html;
-    }
-
-    function updateClinchAndDiff(homeTotal, awayTotal, completedHeatsCount) {
-      const diffBadge = document.getElementById("diff-badge");
-      const diff = homeTotal - awayTotal;
-
-      if (homeTotal === 0 && awayTotal === 0 && completedHeatsCount === 0) {
-        diffBadge.style.display = "none";
-      } else {
-        diffBadge.style.display = "inline-block";
-        diffBadge.className = "diff-badge";
-        if (diff > 0) {
-          diffBadge.classList.add("ind-lead");
-          diffBadge.innerText = `+${diff}`;
-        } else if (diff < 0) {
-          diffBadge.classList.add("vas-lead");
-          diffBadge.innerText = `${diff}`;
+      onScoreClick(heatIdx, team, slotIdx, pt) {
+        const key = `${heatIdx}_${team}_${slotIdx}`;
+        if (this.scores[key] === pt) {
+          delete this.scores[key];
         } else {
-          diffBadge.classList.add("tie");
-          diffBadge.innerText = "Lika";
+          this.scores[key] = pt;
         }
-      }
+        this.saveState();
+        this.renderFull();
+      },
 
-      const remainingHeats = 15 - completedHeatsCount;
-      const maxRemainingPoints = remainingHeats * 5;
-      const banner = document.getElementById("clinch-banner");
+      onToggleMF(heatIdx, team, slotIdx) {
+        const key = `${heatIdx}_${team}_${slotIdx}`;
+        const current = this.scores[key];
+        if (current === 'M') {
+          this.scores[key] = 'F';
+        } else if (current === 'F') {
+          delete this.scores[key];
+        } else {
+          this.scores[key] = 'M';
+        }
+        this.saveState();
+        this.renderFull();
+      },
 
-      let comment = "";
-      let isWon = false;
+      onRiderChange(heatIdx, team, slotIdx, newNumStr) {
+        const key = `${heatIdx}_${team}_${slotIdx}`;
+        if (newNumStr === "") {
+          this.overrides[key] = null;
+        } else {
+          this.overrides[key] = parseInt(newNumStr, 10);
+        }
+        this.saveState();
+        this.renderFull();
+      },
 
-      if (homeTotal >= 46) {
-        comment = "🏆 Indianerna har matematiskt säkrat matchsegern!";
-        isWon = true;
-      } else if (awayTotal >= 46) {
-        comment = "🏆 Västervik har matematiskt säkrat matchsegern!";
-        isWon = true;
-      } else if (completedHeatsCount >= 10) {
-        const indNeed = 46 - homeTotal;
-        const vasNeed = 46 - awayTotal;
+      /**
+       * Isolerad tidshantering:
+       * Sparar tidsdata utan att kalla renderFull() så att fokus och tangentbord inte tappas på mobilen.
+       */
+      onTimeInput(heatIdx, value) {
+        this.times[heatIdx] = value;
+        const pfx = `speedway_data_${this.currentMatchId}_`;
+        localStorage.setItem(`${pfx}times`, JSON.stringify(this.times));
 
-        if (awayTotal + maxRemainingPoints < homeTotal) {
-          comment = "🏆 Indianerna har säkrat segern (Västervik kan inte komma ikapp)!";
-          isWon = true;
-        } else if (homeTotal + maxRemainingPoints < awayTotal) {
-          comment = "🏆 Västervik har säkrat segern (Indianerna kan inte komma ikapp)!";
-          isWon = true;
-        } else if (indNeed <= 5 && remainingHeats <= 2) {
-          if (indNeed <= 3) {
-            comment = `🏁 Indianerna säkrar segern vid heatseger (3p) eller minst ${indNeed} poäng till!`;
-          } else {
-            comment = `🏁 Indianerna behöver ${indNeed} poäng på de sista ${remainingHeats} heaten för att säkra segern.`;
+        // Synka övriga fält (mellan fokusvy och körschema) utan omläsning
+        document.querySelectorAll(`input.heat-time-input[data-heat="${heatIdx}"]`).forEach(input => {
+          if (input !== document.activeElement && input.value !== value) {
+            input.value = value;
           }
-        } else if (vasNeed <= 5 && remainingHeats <= 2) {
-          comment = `🏁 Västervik behöver ${vasNeed} poäng till för att säkra segern.`;
+        });
+
+        // Uppdatera enbart snabbaste tid i statistiken
+        this.updateFastestTimeDisplay();
+      },
+
+      changeFocusHeat(delta) {
+        this.focusIndex = Math.max(0, Math.min(14, this.focusIndex + delta));
+        this.renderFull();
+      },
+
+      showTab(tab) {
+        document.getElementById("tab-focus").style.display = tab === 'focus' ? 'block' : 'none';
+        document.getElementById("tab-heats").style.display = tab === 'heats' ? 'block' : 'none';
+        document.getElementById("tab-riders").style.display = tab === 'riders' ? 'block' : 'none';
+        document.querySelectorAll(".tab-btn").forEach((btn, i) => {
+          btn.classList.toggle("active", (tab === 'focus' && i === 0) || (tab === 'heats' && i === 1) || (tab === 'riders' && i === 2));
+        });
+      },
+
+      resetCurrentMatch() {
+        if (confirm(`Vill du nollställa protokollet för ${MATCHES_DATABASE[this.currentMatchId].title}?`)) {
+          this.scores = {};
+          this.overrides = {};
+          this.times = {};
+          this.saveState();
+          this.renderFull();
         }
-      }
+      },
 
-      if (comment) {
-        banner.innerHTML = comment;
-        banner.style.display = "block";
-        banner.className = `clinch-alert ${isWon ? 'won' : ''}`;
-      } else {
-        banner.style.display = "none";
-      }
-    }
+      updateFastestTimeDisplay() {
+        let fastestTime = 999;
+        let fastestStr = "-";
+        Object.keys(this.times).forEach(hIdx => {
+          const val = parseFloat(String(this.times[hIdx]).replace(',', '.'));
+          if (!isNaN(val) && val > 0 && val < fastestTime) {
+            fastestTime = val;
+            fastestStr = `${val.toFixed(2)} s (Heat ${parseInt(hIdx, 10) + 1})`;
+          }
+        });
+        document.getElementById("stat-fastest-time").innerText = fastestStr;
+      },
 
-    function render() {
-      let homeRiderPoints = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
-      let awayRiderPoints = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
-      let homeRiderHeats = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
-      let awayRiderHeats = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
-      let homeRiderHistory = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]};
-      let awayRiderHistory = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]};
-      let homeRiderRemainingHeats = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
-      let awayRiderRemainingHeats = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
+      renderFull() {
+        const match = MATCHES_DATABASE[this.currentMatchId];
+        let homePoints = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
+        let awayPoints = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
+        let homeHeatsCount = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
+        let awayHeatsCount = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
+        let homeHistory = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]};
+        let awayHistory = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]};
+        let homeRemaining = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
+        let awayRemaining = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0};
 
-      let gateWins = {1:0, 2:0, 3:0, 4:0};
-      let gatePoints = {1:0, 2:0, 3:0, 4:0};
-      let totalCompletedHeatsWithPoints = 0;
+        let gateWins = {1:0, 2:0, 3:0, 4:0};
+        let gatePoints = {1:0, 2:0, 3:0, 4:0};
+        let completedHeatsCount = 0;
+        let home5_1 = 0;
+        let away5_1 = 0;
 
-      let home5_1 = 0;
-      let away5_1 = 0;
-      let fastestTime = 999;
-      let fastestTimeStr = "-";
+        let runningHome = 0;
+        let runningAway = 0;
 
-      const heatsContainer = document.getElementById("tab-heats");
-      heatsContainer.innerHTML = "";
+        const heatsContainer = document.getElementById("tab-heats");
+        heatsContainer.innerHTML = "";
+        const printTbody = document.querySelector("#p-heats-table tbody");
+        printTbody.innerHTML = "";
+        let focusCardHtml = "";
 
-      let runningHome = 0;
-      let runningAway = 0;
-      let completedHeatsCount = 0;
+        SVEMO_2026_SCHEDULE.forEach((h, heatIdx) => {
+          let hScore = 0;
+          let aScore = 0;
+          let heatHasPoints = false;
 
-      let focusCardHtml = "";
-      const printHeatsTbody = document.querySelector("#p-heats-table tbody");
-      printHeatsTbody.innerHTML = "";
+          // Hitta poäng som redan registrerats i heatet för att låsa knapparna 3, 2, 1
+          const usedPts = new Set();
+          h.slots.forEach((s, sIdx) => {
+            const val = this.scores[`${heatIdx}_${s.team}_${sIdx}`];
+            if (val === '3' || val === '2' || val === '1') usedPts.add(val);
+          });
 
-      BASE_SCHEDULE.forEach((h, heatIdx) => {
-        let hScore = 0;
-        let aScore = 0;
-        let heatHasPoints = false;
+          let homeDesc = [];
+          let awayDesc = [];
 
-        const usedPointsInHeat = new Set();
-        ['home', 'away'].forEach(team => {
-          [0, 1].forEach(rIdx => {
-            const val = scores[`${heatIdx}_${team}_${rIdx}`];
-            if (val === '3' || val === '2' || val === '1') {
-              usedPointsInHeat.add(val);
+          h.slots.forEach((slot, sIdx) => {
+            const overrideVal = this.overrides[`${heatIdx}_${slot.team}_${sIdx}`];
+            const activeRiderNum = (overrideVal !== undefined) ? overrideVal : slot.num;
+            const pt = this.scores[`${heatIdx}_${slot.team}_${sIdx}`];
+            const ridersMap = (slot.team === 'home') ? match.homeRiders : match.awayRiders;
+            const riderName = activeRiderNum ? (ridersMap[activeRiderNum] || `Förare ${activeRiderNum}`) : "Ej nominerad";
+
+            const descStr = `Bana ${slot.gate}: #${activeRiderNum || '?'} ${riderName} (${pt !== undefined ? pt : '-'}p)`;
+            if (slot.team === 'home') homeDesc.push(descStr); else awayDesc.push(descStr);
+
+            if (pt !== undefined && pt !== null) {
+              heatHasPoints = true;
+              const numericPt = (pt === '3' ? 3 : (pt === '2' ? 2 : (pt === '1' ? 1 : 0)));
+              if (slot.team === 'home') hScore += numericPt; else aScore += numericPt;
+              gatePoints[slot.gate] += numericPt;
+              if (pt === '3') gateWins[slot.gate] += 1;
+
+              if (activeRiderNum) {
+                if (slot.team === 'home' && homePoints[activeRiderNum] !== undefined) {
+                  homePoints[activeRiderNum] += numericPt;
+                  homeHeatsCount[activeRiderNum] += 1;
+                  homeHistory[activeRiderNum].push(pt);
+                } else if (slot.team === 'away' && awayPoints[activeRiderNum] !== undefined) {
+                  awayPoints[activeRiderNum] += numericPt;
+                  awayHeatsCount[activeRiderNum] += 1;
+                  awayHistory[activeRiderNum].push(pt);
+                }
+              }
+            } else {
+              if (activeRiderNum) {
+                if (slot.team === 'home' && homeRemaining[activeRiderNum] !== undefined) homeRemaining[activeRiderNum] += 1;
+                if (slot.team === 'away' && awayRemaining[activeRiderNum] !== undefined) awayRemaining[activeRiderNum] += 1;
+              }
             }
           });
-        });
 
-        const tVal = parseFloat(heatTimes[heatIdx]);
-        if (!isNaN(tVal) && tVal > 0 && tVal < fastestTime) {
-          fastestTime = tVal;
-          fastestTimeStr = `${tVal.toFixed(2)} s (Heat ${h.heat})`;
-        }
-
-        // Hemmalaget
-        let homeDesc = [];
-        h.home.forEach((r, rIdx) => {
-          const actualRiderNum = getSelectedRiderNum(heatIdx, 'home', rIdx, r.num);
-          const pt = scores[`${heatIdx}_home_${rIdx}`];
-          const riderName = actualRiderNum ? HOME_RIDERS[actualRiderNum] : "Ej vald";
-          homeDesc.push(`Spår ${r.gate}: ${riderName} (${pt !== undefined ? pt : '-'}p)`);
-
-          if (pt !== undefined && pt !== null) {
-            heatHasPoints = true;
-            const numVal = (pt === '3' ? 3 : (pt === '2' ? 2 : (pt === '1' ? 1 : 0)));
-            hScore += numVal;
-            gatePoints[r.gate] += numVal;
-            if (pt === '3') gateWins[r.gate] += 1;
-
-            if (actualRiderNum && homeRiderPoints[actualRiderNum] !== undefined) {
-              homeRiderPoints[actualRiderNum] += numVal;
-              homeRiderHeats[actualRiderNum] += 1;
-              homeRiderHistory[actualRiderNum].push(pt);
-            }
-          } else {
-            if (actualRiderNum && homeRiderRemainingHeats[actualRiderNum] !== undefined) {
-              homeRiderRemainingHeats[actualRiderNum] += 1;
-            }
+          if (heatHasPoints) {
+            completedHeatsCount++;
+            if (hScore === 5 && aScore === 1) home5_1++;
+            if (aScore === 5 && hScore === 1) away5_1++;
           }
-        });
 
-        // Bortalaget
-        let awayDesc = [];
-        h.away.forEach((r, rIdx) => {
-          const actualRiderNum = getSelectedRiderNum(heatIdx, 'away', rIdx, r.num);
-          const pt = scores[`${heatIdx}_away_${rIdx}`];
-          const riderName = actualRiderNum ? AWAY_RIDERS[actualRiderNum] : "Ej vald";
-          awayDesc.push(`Spår ${r.gate}: ${riderName} (${pt !== undefined ? pt : '-'}p)`);
+          runningHome += hScore;
+          runningAway += aScore;
 
-          if (pt !== undefined && pt !== null) {
-            heatHasPoints = true;
-            const numVal = (pt === '3' ? 3 : (pt === '2' ? 2 : (pt === '1' ? 1 : 0)));
-            aScore += numVal;
-            gatePoints[r.gate] += numVal;
-            if (pt === '3') gateWins[r.gate] += 1;
+          const cardHtml = this.buildHeatCardHTML(h, heatIdx, runningHome, runningAway, hScore, aScore, usedPts, match);
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = cardHtml;
+          heatsContainer.appendChild(wrapper.firstElementChild);
 
-            if (actualRiderNum && awayRiderPoints[actualRiderNum] !== undefined) {
-              awayRiderPoints[actualRiderNum] += numVal;
-              awayRiderHeats[actualRiderNum] += 1;
-              awayRiderHistory[actualRiderNum].push(pt);
-            }
-          } else {
-            if (actualRiderNum && awayRiderRemainingHeats[actualRiderNum] !== undefined) {
-              awayRiderRemainingHeats[actualRiderNum] += 1;
-            }
+          if (heatIdx === this.focusIndex) {
+            focusCardHtml = cardHtml;
           }
+
+          // Utskriftstabell rad
+          const ptr = document.createElement("tr");
+          ptr.innerHTML = `
+            <td><strong>${h.heat}</strong></td>
+            <td>${this.times[heatIdx] ? this.times[heatIdx] + ' s' : '-'}</td>
+            <td>${homeDesc.join("<br>")}</td>
+            <td>${awayDesc.join("<br>")}</td>
+            <td><strong>${hScore} - ${aScore}</strong></td>
+            <td>${runningHome} - ${runningAway}</td>
+          `;
+          printTbody.appendChild(ptr);
         });
 
-        if (heatHasPoints) {
-          completedHeatsCount++;
-          totalCompletedHeatsWithPoints++;
-          if (hScore === 5 && aScore === 1) home5_1++;
-          if (aScore === 5 && hScore === 1) away5_1++;
-        }
+        document.getElementById("focus-heat-card-container").innerHTML = focusCardHtml;
+        document.getElementById("focus-indicator").innerText = `HEAT ${this.focusIndex + 1} / 15`;
+        document.getElementById("prev-heat-btn").disabled = (this.focusIndex === 0);
+        document.getElementById("next-heat-btn").disabled = (this.focusIndex === 14);
 
-        runningHome += hScore;
-        runningAway += aScore;
+        document.getElementById("home-total").innerText = runningHome;
+        document.getElementById("away-total").innerText = runningAway;
+        document.getElementById("stat-5-1").innerText = `${home5_1} – ${away5_1}`;
 
-        const cardHtml = generateHeatCardHTML(h, heatIdx, runningHome, runningAway, hScore, aScore, usedPointsInHeat);
-        
-        const wrapper = document.createElement("div");
-        wrapper.innerHTML = cardHtml;
-        heatsContainer.appendChild(wrapper.firstElementChild);
+        this.updateFastestTimeDisplay();
+        this.updateClinchAlert(runningHome, runningAway, completedHeatsCount, match);
 
-        if (heatIdx === currentFocusHeatIndex) {
-          focusCardHtml = cardHtml;
-        }
+        document.getElementById("p-score-header").innerText = `${match.homeTeam} ${runningHome} - ${runningAway} ${match.awayTeam}`;
 
-        const ptr = document.createElement("tr");
-        ptr.innerHTML = `
-          <td><strong>${h.heat}</strong></td>
-          <td>${heatTimes[heatIdx] ? heatTimes[heatIdx] + ' s' : '-'}</td>
-          <td>${homeDesc.join("<br>")}</td>
-          <td>${awayDesc.join("<br>")}</td>
-          <td><strong>${hScore} - ${aScore}</strong></td>
-          <td>${runningHome} - ${runningAway}</td>
-        `;
-        printHeatsTbody.appendChild(ptr);
-      });
+        this.renderStatsTable("home-stats-table", match.homeRiders, homePoints, homeHeatsCount, homeHistory, homeRemaining);
+        this.renderStatsTable("away-stats-table", match.awayRiders, awayPoints, awayHeatsCount, awayHistory, awayRemaining);
+        this.renderGateStatsTable(gateWins, gatePoints, completedHeatsCount);
 
-      document.getElementById("focus-heat-card-container").innerHTML = focusCardHtml;
-      document.getElementById("focus-indicator").innerText = `HEAT ${currentFocusHeatIndex + 1} / 15`;
-      document.getElementById("prev-heat-btn").disabled = (currentFocusHeatIndex === 0);
-      document.getElementById("next-heat-btn").disabled = (currentFocusHeatIndex === 14);
+        this.renderPrintStatsTable("p-ind-stats", match.homeRiders, homePoints, homeHeatsCount, homeHistory);
+        this.renderPrintStatsTable("p-vas-stats", match.awayRiders, awayPoints, awayHeatsCount, awayHistory);
+      },
 
-      document.getElementById("home-total").innerText = runningHome;
-      document.getElementById("away-total").innerText = runningAway;
-
-      document.getElementById("stat-5-1").innerText = `${home5_1} – ${away5_1}`;
-      document.getElementById("stat-fastest-time").innerText = fastestTimeStr;
-
-      updateClinchAndDiff(runningHome, runningAway, completedHeatsCount);
-
-      document.getElementById("p-score-header").innerText = `Indianerna ${runningHome} - ${runningAway} Västervik`;
-
-      renderTable("ind-stats", HOME_RIDERS, homeRiderPoints, homeRiderHeats, homeRiderHistory, homeRiderRemainingHeats);
-      renderTable("vas-stats", AWAY_RIDERS, awayRiderPoints, awayRiderHeats, awayRiderHistory, awayRiderRemainingHeats);
-      renderGateStatsTable(gateWins, gatePoints, totalCompletedHeatsWithPoints);
-
-      renderPrintTable("p-ind-stats", HOME_RIDERS, homeRiderPoints, homeRiderHeats, homeRiderHistory);
-      renderPrintTable("p-vas-stats", AWAY_RIDERS, awayRiderPoints, awayRiderHeats, awayRiderHistory);
-    }
-
-    function createRiderRow(heatIdx, team, rIdx, gate, helmet, ridersMap, currentNum, activePt, usedPointsInHeat, teamName) {
-      const regularPts = ["3", "2", "1", "0"];
-      const riderName = currentNum ? ridersMap[currentNum] : "Välj förare (Heat 15)";
-      const subInfo = currentNum ? `#${currentNum} ${teamName}` : teamName;
-
-      let options = `<option value="">Byt förare...</option>`;
-      Object.keys(ridersMap).forEach(n => {
-        const selected = (currentNum !== null && String(currentNum) === String(n)) ? 'selected' : '';
-        options += `<option value="${n}" ${selected}>#${n} ${ridersMap[n]}</option>`;
-      });
-
-      const isMFActive = (activePt === 'M' || activePt === 'F');
-      const mfLabel = isMFActive ? activePt : 'M/F';
-      const mfClass = isMFActive ? 'btn-pt active-status' : 'btn-pt';
-
-      return `
-        <div class="rider-card-row">
-          <div class="rider-top-line">
-            <div class="rider-title-wrap">
-              <span class="gate-pill">SPÅR ${gate}</span>
-              <div class="helmet ${helmet}"></div>
-              <span class="rider-full-name">${riderName} <span class="rider-sub-badge">${subInfo}</span></span>
+      buildHeatCardHTML(h, heatIdx, runHome, runAway, hScore, aScore, usedPts, match) {
+        const timeVal = this.times[heatIdx] || "";
+        let html = `
+          <div class="heat-card">
+            <div class="heat-header">
+              <div class="heat-header-left">
+                <span class="heat-title">HEAT ${h.heat}</span>
+                <input type="text" inputmode="decimal" data-heat="${heatIdx}" class="heat-time-input" placeholder="Tid (sek)" value="${timeVal}" oninput="App.onTimeInput(${heatIdx}, this.value)" />
+              </div>
+              <span class="heat-score">${hScore} - ${aScore} <span style="color:var(--text-muted); font-size:12px;">(${runHome} - ${runAway})</span></span>
             </div>
-            <select class="edit-rider-select" onchange="onRiderChange(${heatIdx}, '${team}', ${rIdx}, this.value)">
-              ${options}
-            </select>
+        `;
+
+        // Sortera efter bana 1 till 4
+        const sortedSlots = [...h.slots.map((s, sIdx) => ({ ...s, sIdx }))].sort((a, b) => a.gate - b.gate);
+
+        sortedSlots.forEach(slot => {
+          const overrideVal = this.overrides[`${heatIdx}_${slot.team}_${slot.sIdx}`];
+          const currentNum = (overrideVal !== undefined) ? overrideVal : slot.num;
+          const activePt = this.scores[`${heatIdx}_${slot.team}_${slot.sIdx}`];
+          const isHome = slot.team === 'home';
+          const teamName = isHome ? match.homeTeam : match.awayTeam;
+          const ridersMap = isHome ? match.homeRiders : match.awayRiders;
+
+          html += this.buildRiderRowHTML(heatIdx, slot.team, slot.sIdx, slot.gate, slot.h, ridersMap, currentNum, activePt, usedPts, teamName);
+        });
+
+        html += `</div>`;
+        return html;
+      },
+
+      buildRiderRowHTML(heatIdx, team, slotIdx, gate, helmetColor, ridersMap, currentNum, activePt, usedPts, teamName) {
+        const riderName = currentNum ? (ridersMap[currentNum] || `Förare ${currentNum}`) : (heatIdx === 14 ? "Välj nominering" : "Ej vald");
+        const subInfo = currentNum ? `#${currentNum} ${teamName}` : teamName;
+
+        let options = `<option value="">Byt / Välj...</option>`;
+        Object.keys(ridersMap).forEach(n => {
+          const sel = (currentNum !== null && String(currentNum) === String(n)) ? 'selected' : '';
+          options += `<option value="${n}" ${sel}>#${n} ${ridersMap[n]}</option>`;
+        });
+
+        const isMF = (activePt === 'M' || activePt === 'F');
+        const mfLabel = isMF ? activePt : 'M/F';
+        const mfClass = isMF ? 'btn-pt active-status' : 'btn-pt';
+
+        return `
+          <div class="rider-card-row">
+            <div class="rider-top-line">
+              <div class="rider-title-wrap">
+                <span class="gate-pill">BANA ${gate}</span>
+                <div class="helmet ${helmetColor}"></div>
+                <span class="rider-full-name">${riderName} <span class="rider-sub-badge">${subInfo}</span></span>
+              </div>
+              <select class="edit-rider-select" onchange="App.onRiderChange(${heatIdx}, '${team}', ${slotIdx}, this.value)">
+                ${options}
+              </select>
+            </div>
+            <div class="score-buttons-bar">
+              ${["3", "2", "1", "0"].map(p => {
+                const isActive = (activePt !== undefined && String(activePt) === String(p));
+                const isLocked = (p === '3' || p === '2' || p === '1') && usedPts.has(p) && !isActive;
+                return `<button class="btn-pt ${isActive ? 'active' : ''}" ${isLocked ? 'disabled' : ''} onclick="App.onScoreClick(${heatIdx}, '${team}', ${slotIdx}, '${p}')">${p}</button>`;
+              }).join("")}
+              <button class="${mfClass}" onclick="App.onToggleMF(${heatIdx}, '${team}', ${slotIdx})">${mfLabel}</button>
+            </div>
           </div>
-          <div class="score-buttons-bar">
-            ${regularPts.map(p => {
-              const isActive = (activePt !== undefined && String(activePt) === String(p));
-              const isLocked = (p === '3' || p === '2' || p === '1') && usedPointsInHeat.has(p) && !isActive;
-              const disabledAttr = isLocked ? 'disabled' : '';
-              const activeClass = isActive ? 'active' : '';
-
-              return `<button class="btn-pt ${activeClass}" ${disabledAttr} onclick="saveScore(${heatIdx}, '${team}', ${rIdx}, '${p}')">${p}</button>`;
-            }).join("")}
-            <button class="${mfClass}" onclick="toggleMF(${heatIdx}, '${team}', ${rIdx})">${mfLabel}</button>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderGateStatsTable(gateWins, gatePoints, completedHeats) {
-      const tbody = document.querySelector("#gate-stats-table tbody");
-      tbody.innerHTML = "";
-
-      [1, 2, 3, 4].forEach(g => {
-        const wins = gateWins[g] || 0;
-        const pts = gatePoints[g] || 0;
-        const winPct = completedHeats > 0 ? ((wins / completedHeats) * 100).toFixed(0) + '%' : '-';
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><span class="gate-pill" style="font-size:10px; padding:3px 8px;">SPÅR ${g}</span></td>
-          <td class="center" style="font-weight:700;">${wins}</td>
-          <td class="center">${pts} p</td>
-          <td class="right" style="color:#38bdf8;">${winPct}</td>
         `;
-        tbody.appendChild(tr);
-      });
-    }
+      },
 
-    function renderTable(tableId, riders, points, heats, history, remaining) {
-      const tbody = document.querySelector(`#${tableId} tbody`);
-      tbody.innerHTML = "";
-      Object.keys(riders).forEach(num => {
-        const hCount = heats[num] || 0;
-        const pts = points[num] || 0;
-        const avg = hCount > 0 ? (pts / hCount).toFixed(2) : "-";
-        const maxPts = pts + ((remaining[num] || 0) * 3);
-        const histStr = (history[num] && history[num].length > 0) ? history[num].join(", ") : "-";
+      updateClinchAlert(homeTotal, awayTotal, completedCount, match) {
+        const diffBadge = document.getElementById("diff-badge");
+        const diff = homeTotal - awayTotal;
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><strong>${num}.</strong> ${riders[num]}</td>
-          <td class="center">${hCount}</td>
-          <td class="center" style="font-family:monospace; color:#38bdf8;">${histStr}</td>
-          <td class="center">${avg}</td>
-          <td class="center" style="color:var(--muted);">${maxPts}p</td>
-          <td class="right">${pts} p</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+        if (homeTotal === 0 && awayTotal === 0 && completedCount === 0) {
+          diffBadge.style.display = "none";
+        } else {
+          diffBadge.style.display = "inline-block";
+          diffBadge.className = "diff-badge";
+          if (diff > 0) {
+            diffBadge.classList.add("home-lead");
+            diffBadge.innerText = `+${diff}`;
+          } else if (diff < 0) {
+            diffBadge.classList.add("away-lead");
+            diffBadge.innerText = `${diff}`;
+          } else {
+            diffBadge.classList.add("tie");
+            diffBadge.innerText = "Lika";
+          }
+        }
 
-    function renderPrintTable(tableId, riders, points, heats, history) {
-      const tbody = document.querySelector(`#${tableId} tbody`);
-      tbody.innerHTML = "";
-      Object.keys(riders).forEach(num => {
-        const histStr = (history[num] && history[num].length > 0) ? history[num].join(", ") : "-";
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${num}</td>
-          <td>${riders[num]}</td>
-          <td>${heats[num] || 0}</td>
-          <td>${histStr}</td>
-          <td>${points[num] || 0} p</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+        const remainingHeats = 15 - completedCount;
+        const banner = document.getElementById("clinch-banner");
+        let comment = "";
+        let isWon = false;
 
-    function showTab(tab) {
-      document.getElementById("tab-focus").style.display = tab === 'focus' ? 'block' : 'none';
-      document.getElementById("tab-heats").style.display = tab === 'heats' ? 'block' : 'none';
-      document.getElementById("tab-riders").style.display = tab === 'riders' ? 'block' : 'none';
-      document.querySelectorAll(".tab-btn").forEach((btn, idx) => {
-        btn.classList.toggle("active", (tab === 'focus' && idx === 0) || (tab === 'heats' && idx === 1) || (tab === 'riders' && idx === 2));
-      });
-    }
+        if (homeTotal >= 46) {
+          comment = `🏆 ${match.homeTeam} har säkrat matchsegern!`;
+          isWon = true;
+        } else if (awayTotal >= 46) {
+          comment = `🏆 ${match.awayTeam} har säkrat matchsegern!`;
+          isWon = true;
+        } else if (completedCount >= 10) {
+          const maxRemaining = remainingHeats * 5;
+          if (awayTotal + maxRemaining < homeTotal) {
+            comment = `🏆 ${match.homeTeam} har matematiskt säkrat segern!`;
+            isWon = true;
+          } else if (homeTotal + maxRemaining < awayTotal) {
+            comment = `🏆 ${match.awayTeam} har matematiskt säkrat segern!`;
+            isWon = true;
+          }
+        }
 
-    function exportPDF() {
-      window.print();
-    }
+        if (comment) {
+          banner.innerText = comment;
+          banner.style.display = "block";
+          banner.className = `clinch-alert ${isWon ? 'won' : ''}`;
+        } else {
+          banner.style.display = "none";
+        }
+      },
 
-    function resetAll() {
-      if (confirm("Vill du nollställa hela protokollet, tider och alla förarval?")) {
-        scores = {};
-        riderOverrides = {};
-        heatTimes = {};
-        currentFocusHeatIndex = 0;
-        localStorage.clear();
-        document.querySelectorAll('.heat-time-input').forEach(input => input.value = '');
-        render();
+      renderGateStatsTable(gateWins, gatePoints, completedCount) {
+        const tbody = document.querySelector("#gate-stats-table tbody");
+        tbody.innerHTML = "";
+        [1, 2, 3, 4].forEach(g => {
+          const wins = gateWins[g] || 0;
+          const pts = gatePoints[g] || 0;
+          const winPct = completedCount > 0 ? ((wins / completedCount) * 100).toFixed(0) + '%' : '-';
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><span class="gate-pill">BANA ${g}</span></td>
+            <td class="center" style="font-weight:700;">${wins}</td>
+            <td class="center">${pts} p</td>
+            <td class="right" style="color:var(--accent-cyan);">${winPct}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      },
+
+      renderStatsTable(tableId, riders, points, heats, history, remaining) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        tbody.innerHTML = "";
+        Object.keys(riders).forEach(num => {
+          const hCount = heats[num] || 0;
+          const pts = points[num] || 0;
+          const avg = hCount > 0 ? (pts / hCount).toFixed(2) : "-";
+          const maxPts = pts + ((remaining[num] || 0) * 3);
+          const histStr = (history[num] && history[num].length > 0) ? history[num].join(", ") : "-";
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>#${num}</strong> ${riders[num]}</td>
+            <td class="center">${hCount}</td>
+            <td class="center" style="font-family:monospace; color:var(--accent-cyan);">${histStr}</td>
+            <td class="center">${avg}</td>
+            <td class="center" style="color:var(--text-muted);">${maxPts}p</td>
+            <td class="right">${pts} p</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      },
+
+      renderPrintStatsTable(tableId, riders, points, heats, history) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        tbody.innerHTML = "";
+        Object.keys(riders).forEach(num => {
+          const histStr = (history[num] && history[num].length > 0) ? history[num].join(", ") : "-";
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${num}</td>
+            <td>${riders[num]}</td>
+            <td>${heats[num] || 0}</td>
+            <td>${histStr}</td>
+            <td>${points[num] || 0} p</td>
+          `;
+          tbody.appendChild(tr);
+        });
       }
-    }
+    };
 
-    render();
+    // Starta applikationen vid laddning
+    window.addEventListener("DOMContentLoaded", () => App.init());
   </script>
 </body>
 </html>
