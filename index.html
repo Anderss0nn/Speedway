@@ -554,6 +554,7 @@
         const storedMatch = localStorage.getItem("speedway_active_match");
         const defaultMatch = (storedMatch && MATCHES_DATABASE[storedMatch]) ? storedMatch : Object.keys(MATCHES_DATABASE)[0];
         this.loadMatch(defaultMatch);
+      
       },
 
       populateMatchSelect() {
